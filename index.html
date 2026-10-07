@@ -175,7 +175,7 @@
       <div class="text-center mb-10"><div class="flex items-center justify-center gap-4 mb-5"><div class="gold-line"></div><span class="text-xs tracking-[.25em] uppercase text-muted">Online Termin</span><div class="gold-line"></div></div><h2 class="text-4xl sm:text-5xl mb-4">Ihren Termin auswählen</h2><p class="text-muted">Diese Buchungsmaske ist eine Website-Demo.</p></div>
 
       <form id="bookingSubmitForm" action="https://api.web3forms.com/submit" method="POST" class="bg-white border border-black/10 shadow-luxury">
-        <input type="hidden" name="access_key" value="e83367a8-80ca-46c7-ad5f-136ee3235d00">
+        <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY">
         <input type="hidden" name="subject" value="Neue Salon-Termin-Demo – pimentaGROUP Web Concierge">
         <input type="hidden" name="from_name" value="pimentaGROUP Web Concierge Demo Booking">
         <input type="hidden" name="source" value="Salon Demo Terminbuchung">
@@ -243,7 +243,7 @@
             </div>
             <div class="mt-5"><label for="bookingEmail" class="block text-xs uppercase tracking-widest text-muted mb-2">E-Mail</label><input id="bookingEmail" type="email" name="email" placeholder="Ihre E-Mail-Adresse" required class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold"></div>
             <div class="mt-6 rounded-lg border border-black/10 bg-ivory p-5"><div class="text-xs uppercase tracking-widest text-muted mb-3">Spam-Schutz</div><div id="bookingCaptcha" class="h-captcha" data-sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2" data-theme="light" data-lang="de" data-callback="bookingCaptchaSolved" data-expired-callback="bookingCaptchaExpired" data-error-callback="bookingCaptchaError"></div><p class="text-[11px] text-muted mt-2">Bitte bestätigen Sie, dass Sie kein Bot sind.</p></div>
-            <div class="mt-5"><label for="bookingPrivacy" class="flex items-start gap-3 cursor-pointer"><input id="bookingPrivacy" type="checkbox" name="privacy" required class="mt-1 w-5 h-5 shrink-0 accent-[#B79A65]"><span class="text-xs text-muted leading-5">Ich stimme der Kontaktaufnahme zur Terminvereinbarung zu (Datenschutz).</span></label></div>
+            <div class="mt-5"><label for="bookingPrivacy" class="flex items-start gap-3 cursor-pointer"><input id="bookingPrivacy" type="checkbox" name="privacy" required class="mt-1 w-5 h-5 shrink-0 accent-[#B79A65]"><span class="text-xs text-muted leading-5">Ich willige in die Verarbeitung meiner Angaben zur Terminvereinbarung ein und habe die <a href="datenschutz.html" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-charcoal">Datenschutzerklärung</a> gelesen.</span></label></div>
             <div class="grid grid-cols-2 gap-3 mt-7"><button type="button" id="backToStep3" class="min-h-[52px] border border-black/15 font-semibold text-sm hover:bg-ivory transition">Zurück</button><button type="button" id="bookingSubmit" class="min-h-[52px] bg-charcoal text-white font-semibold text-sm hover:bg-black transition">Termin bestätigen</button></div>
           </div>
 
@@ -301,9 +301,9 @@
           <div><label for="preferred_time" class="block text-xs uppercase tracking-widest text-white/60 mb-2">Bevorzugtes Datum</label><input id="preferred_time" type="date" name="preferred_date" min="" max="2099-12-31" inputmode="numeric" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white outline-none focus:border-gold"></div>
           <p id="leadDateError" class="hidden text-xs text-red-300 -mt-2">Bitte verwenden Sie ein gültiges Datum mit genau 4-stelliger Jahreszahl.</p>
           <div class="pt-2"><div class="text-xs uppercase tracking-widest text-white/60 mb-3">Spam-Schutz</div><div id="leadCaptcha" class="h-captcha" data-sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2" data-theme="light" data-lang="de" data-callback="leadCaptchaSolved" data-expired-callback="leadCaptchaExpired" data-error-callback="leadCaptchaError"></div></div>
-          <div><label for="privacy" class="flex items-start gap-3 cursor-pointer"><input type="checkbox" name="privacy" id="privacy" required class="mt-1 w-5 h-5 shrink-0 accent-[#B79A65]"><span class="text-xs text-white/60 leading-5">Ich stimme der Kontaktaufnahme zur Terminvereinbarung zu (Datenschutz).</span></label></div>
+          <div><label for="privacy" class="flex items-start gap-3 cursor-pointer"><input type="checkbox" name="privacy" id="privacy" required class="mt-1 w-5 h-5 shrink-0 accent-[#B79A65]"><span class="text-xs text-white/60 leading-5">Ich willige in die Verarbeitung meiner Angaben zur Kontaktaufnahme ein und habe die <a href="datenschutz.html" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-white">Datenschutzerklärung</a> gelesen.</span></label></div>
           <button id="submitButton" type="submit" class="w-full sm:w-auto sm:min-w-[280px] sm:mx-auto sm:flex min-h-[54px] items-center justify-center bg-white text-charcoal px-7 font-semibold text-sm hover:bg-gold hover:text-white transition">Kostenlosen Demo-Termin anfragen</button>
-          <p class="text-[11px] text-white/35 text-center leading-5">Ihre Daten werden ausschließlich zur Kontaktaufnahme bezüglich dieser Anfrage verwendet.</p>
+          <p class="text-[11px] text-white/35 text-center leading-5">Ihre Daten werden ausschließlich zur Kontaktaufnahme bezüglich dieser Anfrage verwendet. <a href="datenschutz.html" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-white">Datenschutz lesen</a></p>
         </form>
 
         <div id="formSuccess" class="hidden text-center py-10"><div class="w-16 h-16 mx-auto bg-white/10 flex items-center justify-center mb-6 text-goldLight text-2xl">✓</div><h3 class="text-3xl mb-3">Vielen Dank!</h3><p class="text-white/60 leading-7">Ihre Anfrage wurde erfolgreich übermittelt. Wir melden uns persönlich bei Ihnen.</p></div>
@@ -311,12 +311,13 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
+  <!-- LEGAL MODALS -->
+    <!-- FOOTER -->
   <footer class="bg-charcoal text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
         <div class="text-center sm:text-left"><div class="font-serif text-xl tracking-wide">ÉLAN</div><div class="text-[8px] tracking-[.35em] uppercase text-white/40 mt-1">Hair & Beauty</div></div>
-        <div class="flex flex-wrap justify-center gap-x-6 gap-y-3 text-xs text-white/50"><a href="#" class="hover:text-white transition" onclick="showPlaceholder(event,'Datenschutzerklärung')">Datenschutz</a><a href="#" class="hover:text-white transition" onclick="showPlaceholder(event,'Impressum')">Impressum</a></div>
+        <div class="flex flex-wrap justify-center gap-x-6 gap-y-3 text-xs text-white/50"><a href="datenschutz.html" class="hover:text-white transition">Datenschutz</a><a href="impressum.html" class="hover:text-white transition">Impressum</a></div>
       </div>
       <div class="border-t border-white/10 py-6 text-center"><p class="text-xs text-white/35">pimentaGROUP Web Concierge · Demo-Website</p></div>
     </div>
@@ -694,8 +695,6 @@
         showToast('Fehler beim Senden','Bitte versuchen Sie es später erneut.');
       } finally { submitButton.disabled = false; submitButton.textContent = original; }
     });
-
-    function showPlaceholder(event, name) { event.preventDefault(); showToast(name,'Diese Seite ist in dieser Demo noch als Platzhalter hinterlegt.'); }
 
     showBookingStep(1);
   </script>
