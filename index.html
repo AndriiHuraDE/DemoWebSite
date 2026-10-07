@@ -693,13 +693,43 @@
       const original = submitButton.textContent;
       submitButton.disabled = true; submitButton.textContent = 'Wird gesendet …';
       try {
-        const response = await fetch(leadForm.action, { method:'POST', body:new FormData(leadForm), headers:{Accept:'application/json'} });
-        const result = await response.json();
-        if (!result.success) throw new Error(result.message || 'Übermittlung fehlgeschlagen');
+        // Web3Forms recommends JSON when the form is submitted through JavaScript.
+        // This avoids redirects/CORS problems caused by mixing content types.
+        const formData = new FormData(leadForm);
+        const payload = Object.fromEntries(formData.entries());
+
+        const response = await fetch(leadForm.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        let result = null;
+        const rawText = await response.text();
+        try {
+          result = rawText ? JSON.parse(rawText) : null;
+        } catch (_) {
+          result = null;
+        }
+
+        const serverMessage =
+          result?.message ||
+          result?.body?.message ||
+          result?.body?.data?.message ||
+          (rawText ? rawText.slice(0, 220) : 'Keine Serverantwort erhalten.');
+
+        if (!response.ok || !result?.success) {
+          throw new Error(`HTTP ${response.status}: ${serverMessage}`);
+        }
+
         leadForm.classList.add('hidden'); formSuccess.classList.remove('hidden');
         showToast('Anfrage gesendet','Vielen Dank! Ihre Demo-Anfrage wurde übermittelt.');
       } catch (error) {
-        showToast('Fehler beim Senden','Bitte versuchen Sie es später erneut.');
+        console.error('Web3Forms error:', error);
+        showToast('Fehler beim Senden', error?.message || 'Bitte versuchen Sie es später erneut.');
       } finally { submitButton.disabled = false; submitButton.textContent = original; }
     });
 
