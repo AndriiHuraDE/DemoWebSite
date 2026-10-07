@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ÉLAN Hair & Beauty – Web Concierge Demo</title>
+  <meta name="description" content="Premium Hair Salon Website Demo in Münster mit Online-Terminbuchung, WhatsApp, lokaler SEO und KI-Auffindbarkeit." />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: '#FDFBF7', ivory: '#F7F3EC', charcoal: '#1A1A1A',
+            gold: '#B79A65', goldLight: '#D7C29A', muted: '#706B63'
+          },
+          fontFamily: {
+            serif: ['Playfair Display', 'serif'],
+            sans: ['Inter', 'sans-serif']
+          },
+          boxShadow: {
+            luxury: '0 20px 60px rgba(26,26,26,.10)',
+            soft: '0 10px 40px rgba(26,26,26,.07)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: Inter, sans-serif; background: #FDFBF7; color: #1A1A1A; }
+    h1,h2,h3,h4 { font-family: 'Playfair Display', serif; }
+    .hero-bg {
+      background-image:
+        linear-gradient(90deg, rgba(0,0,0,.76) 0%, rgba(0,0,0,.62) 42%, rgba(0,0,0,.35) 100%),
+        url('https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=2200&q=90');
+      background-size: cover; background-position: center;
+    }
+    .gold-line { width: 48px; height: 1px; background: #B79A65; }
+    .service-card { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+    .service-card:hover { transform: translateY(-5px); box-shadow: 0 20px 50px rgba(26,26,26,.10); border-color: rgba(183,154,101,.5); }
+    .team-card img { transition: transform .5s ease; }
+    .team-card:hover img { transform: scale(1.04); }
+    .step { transition: all .25s ease; }
+    .step.active { background:#1A1A1A; color:#fff; border-color:#1A1A1A; }
+    .step.completed { background:#B79A65; color:#fff; border-color:#B79A65; }
+    .booking-option { transition: all .2s ease; }
+    .booking-option:hover { border-color:#B79A65; background:#FAF7F0; }
+    .booking-option.selected { border-color:#B79A65; background:#F5EFE3; box-shadow:0 0 0 2px rgba(183,154,101,.12); }
+    .time-option.selected { background:#1A1A1A; color:#fff; border-color:#1A1A1A; }
+    .mobile-menu { transition:max-height .3s ease, opacity .3s ease; max-height:0; opacity:0; overflow:hidden; }
+    .mobile-menu.open { max-height:400px; opacity:1; }
+    .toast { transform:translateY(20px); opacity:0; pointer-events:none; transition:all .3s ease; }
+    .toast.show { transform:translateY(0); opacity:1; pointer-events:auto; }
+    input, select, textarea { font-size:16px !important; }
+    .h-captcha { min-height: 78px; }
+  </style>
+</head>
+
+<body>
+
+  <!-- DEMO BANNER -->
+  <div class="sticky top-0 z-50 bg-charcoal text-white border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[48px] flex items-center justify-center text-center">
+      <p class="text-[11px] sm:text-xs tracking-[0.08em] uppercase font-medium">DEMO-WEBSITE – Web Concierge Vorschau für Friseursalons</p>
+    </div>
+  </div>
+
+  <!-- NAVIGATION -->
+  <header class="absolute top-12 left-0 right-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex items-center justify-between py-5">
+        <a href="#" class="text-white">
+          <div class="font-serif text-xl sm:text-2xl tracking-wide">ÉLAN</div>
+          <div class="text-[8px] tracking-[.35em] uppercase text-white/70">Hair & Beauty</div>
+        </a>
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#leistungen" class="text-sm text-white/85 hover:text-white transition">Leistungen</a>
+          <a href="#team" class="text-sm text-white/85 hover:text-white transition">Team</a>
+          <a href="#booking" class="text-sm text-white/85 hover:text-white transition">Termin buchen</a>
+          <a href="#kontakt" class="inline-flex min-h-[48px] items-center justify-center px-5 border border-white/40 text-sm text-white hover:bg-white hover:text-charcoal transition">Kontakt</a>
+        </div>
+        <button id="menuButton" type="button" aria-label="Menü öffnen" aria-expanded="false" class="md:hidden min-h-[48px] min-w-[48px] flex items-center justify-center border border-white/30 text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </nav>
+      <div id="mobileMenu" class="mobile-menu md:hidden bg-charcoal/95 border border-white/10">
+        <div class="p-4 space-y-1">
+          <a href="#leistungen" class="mobile-link min-h-[48px] flex items-center px-4 text-white">Leistungen</a>
+          <a href="#team" class="mobile-link min-h-[48px] flex items-center px-4 text-white">Team</a>
+          <a href="#booking" class="mobile-link min-h-[48px] flex items-center px-4 text-white">Termin buchen</a>
+          <a href="#kontakt" class="mobile-link min-h-[48px] flex items-center px-4 text-white">Kontakt</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero-bg min-h-[720px] sm:min-h-[760px] lg:min-h-[800px] flex items-center text-white">
+    <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+      <div class="max-w-3xl">
+        <div class="flex items-center gap-4 mb-6"><div class="gold-line"></div><span class="text-xs sm:text-sm tracking-[.25em] uppercase text-white/70">Münster · Premium Hair Studio</span></div>
+        <h1 class="text-5xl sm:text-6xl lg:text-8xl leading-[.95] font-medium mb-7">Ihr Premium<br>Salon-Erlebnis<br><span class="text-goldLight">in Münster</span></h1>
+        <p class="max-w-xl text-base sm:text-lg lg:text-xl text-white/80 leading-relaxed mb-9">Styling, Cut & Color – Buchen Sie Ihren Termin einfach online oder direkt per WhatsApp.</p>
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <a href="#booking" class="min-h-[52px] inline-flex items-center justify-center px-7 bg-white text-charcoal font-semibold text-sm hover:bg-ivory transition">Termin online buchen</a>
+          <button type="button" id="whatsappHero" class="min-h-[52px] inline-flex items-center justify-center gap-2 px-7 border border-white/40 text-white font-semibold text-sm hover:bg-white hover:text-charcoal transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.004 2C6.479 2 1.98 6.477 1.98 12c0 1.77.464 3.43 1.277 4.873L2 22l5.274-1.229A10.005 10.005 0 0012.004 22C17.528 22 22 17.523 22 12S17.528 2 12.004 2zm0 18.182a8.15 8.15 0 01-4.158-1.14l-.298-.177-3.13.73.75-3.048-.194-.314A8.156 8.156 0 013.82 12c0-4.52 3.674-8.182 8.184-8.182 4.51 0 8.175 3.662 8.175 8.182 0 4.52-3.665 8.182-8.175 8.182z"/></svg>
+            Per WhatsApp buchen
+          </button>
+        </div>
+        <div class="mt-12 flex flex-wrap gap-x-8 gap-y-3 text-xs text-white/60"><span>✓ Persönliche Beratung</span><span>✓ Online-Terminbuchung</span><span>✓ Premium Produkte</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTRO -->
+  <section class="py-20 sm:py-24 lg:py-28 bg-cream">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div>
+          <div class="flex items-center gap-4 mb-5"><div class="gold-line"></div><span class="text-xs tracking-[.25em] uppercase text-muted">Ihr persönlicher Look</span></div>
+          <h2 class="text-4xl sm:text-5xl lg:text-6xl leading-tight mb-6">Schönheit beginnt<br>mit <span class="text-gold">Vertrauen.</span></h2>
+          <p class="text-muted leading-8 max-w-xl">Von präzisen Schnitten bis zu individuellen Colorationen: Wir verbinden modernes Handwerk mit persönlicher Beratung und schaffen Looks, die zu Ihnen passen.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3 sm:gap-5">
+          <div class="bg-ivory p-6 sm:p-8"><div class="font-serif text-4xl mb-2">15+</div><div class="text-sm text-muted">Jahre Erfahrung</div></div>
+          <div class="bg-charcoal text-white p-6 sm:p-8"><div class="font-serif text-4xl mb-2">4.9</div><div class="text-sm text-white/60">Kundenbewertung</div></div>
+          <div class="bg-charcoal text-white p-6 sm:p-8"><div class="font-serif text-4xl mb-2">100%</div><div class="text-sm text-white/60">Persönliche Beratung</div></div>
+          <div class="bg-ivory p-6 sm:p-8"><div class="font-serif text-4xl mb-2">Münster</div><div class="text-sm text-muted">Zentral gelegen</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="leistungen" class="py-20 sm:py-24 lg:py-28 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-2xl mb-12">
+        <div class="flex items-center gap-4 mb-5"><div class="gold-line"></div><span class="text-xs tracking-[.25em] uppercase text-muted">Leistungen</span></div>
+        <h2 class="text-4xl sm:text-5xl mb-5">Unsere Services</h2>
+        <p class="text-muted leading-7">Hochwertige Dienstleistungen, individuell auf Ihren Stil, Ihre Haare und Ihre Wünsche abgestimmt.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+        <article class="service-card border border-black/10 p-6 sm:p-7 bg-cream"><div class="flex items-start justify-between gap-4 mb-7"><span class="text-xs tracking-widest uppercase text-gold">Cut</span><span class="font-serif text-xl">49 €</span></div><h3 class="text-2xl mb-3">Damen Haarschnitt</h3><p class="text-sm text-muted leading-6 mb-7">Beratung, Waschen, typgerechter Schnitt und professionelles Styling.</p><div class="pt-5 border-t border-black/10 text-xs text-muted">ca. 60 Min.</div></article>
+        <article class="service-card border border-black/10 p-6 sm:p-7 bg-cream"><div class="flex items-start justify-between gap-4 mb-7"><span class="text-xs tracking-widest uppercase text-gold">Color</span><span class="font-serif text-xl">ab 129 €</span></div><h3 class="text-2xl mb-3">Balayage</h3><p class="text-sm text-muted leading-6 mb-7">Natürlich wirkende Highlights mit individueller Farbberatung und Glossing.</p><div class="pt-5 border-t border-black/10 text-xs text-muted">ca. 150 Min.</div></article>
+        <article class="service-card border border-black/10 p-6 sm:p-7 bg-cream"><div class="flex items-start justify-between gap-4 mb-7"><span class="text-xs tracking-widest uppercase text-gold">Men</span><span class="font-serif text-xl">35 €</span></div><h3 class="text-2xl mb-3">Herren Styling</h3><p class="text-sm text-muted leading-6 mb-7">Präziser Schnitt, Konturen und individuelles Styling für einen gepflegten Look.</p><div class="pt-5 border-t border-black/10 text-xs text-muted">ca. 45 Min.</div></article>
+        <article class="service-card border border-black/10 p-6 sm:p-7 bg-cream"><div class="flex items-start justify-between gap-4 mb-7"><span class="text-xs tracking-widest uppercase text-gold">Care</span><span class="font-serif text-xl">29 €</span></div><h3 class="text-2xl mb-3">Pflegebehandlung</h3><p class="text-sm text-muted leading-6 mb-7">Intensivpflege für geschmeidiges, glänzendes und gesund aussehendes Haar.</p><div class="pt-5 border-t border-black/10 text-xs text-muted">ca. 30 Min.</div></article>
+      </div>
+      <div class="text-center mt-10"><a href="#booking" class="inline-flex min-h-[50px] items-center justify-center border border-charcoal px-7 text-sm font-semibold hover:bg-charcoal hover:text-white transition">Service auswählen & Termin buchen</a></div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section id="team" class="py-20 sm:py-24 lg:py-28 bg-ivory">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-12"><div class="flex items-center justify-center gap-4 mb-5"><div class="gold-line"></div><span class="text-xs tracking-[.25em] uppercase text-muted">Unser Team</span><div class="gold-line"></div></div><h2 class="text-4xl sm:text-5xl mb-5">Menschen hinter Ihrem Look</h2><p class="text-muted leading-7">Erfahrung, Kreativität und ein Auge fürs Detail.</p></div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-7">
+        <article class="team-card overflow-hidden bg-white"><div class="aspect-[4/4.2] overflow-hidden"><img src="https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&w=900&q=85" alt="Anna Müller – Creative Director" class="w-full h-full object-cover" loading="lazy"></div><div class="p-6"><div class="text-xs uppercase tracking-widest text-gold mb-2">Creative Director</div><h3 class="text-2xl mb-2">Anna Müller</h3><p class="text-sm text-muted leading-6">Spezialistin für Balayage, Colorationen und moderne Schnitttechniken.</p></div></article>
+        <article class="team-card overflow-hidden bg-white"><div class="aspect-[4/4.2] overflow-hidden"><img src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?auto=format&fit=crop&w=900&q=85" alt="Lukas Schneider – Master Stylist" class="w-full h-full object-cover" loading="lazy"></div><div class="p-6"><div class="text-xs uppercase tracking-widest text-gold mb-2">Master Stylist</div><h3 class="text-2xl mb-2">Lukas Schneider</h3><p class="text-sm text-muted leading-6">Spezialisiert auf Herren-Schnitte, klassische Looks und typgerechtes Styling.</p></div></article>
+        <article class="team-card overflow-hidden bg-white"><div class="aspect-[4/4.2] overflow-hidden"><img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&q=85" alt="Sophie Weber – Color Expert" class="w-full h-full object-cover" loading="lazy"></div><div class="p-6"><div class="text-xs uppercase tracking-widest text-gold mb-2">Color Expert</div><h3 class="text-2xl mb-2">Sophie Weber</h3><p class="text-sm text-muted leading-6">Expertin für natürliche Blondtöne, Farbkorrekturen und intensive Pflege.</p></div></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOOKING -->
+  <section id="booking" class="py-20 sm:py-24 lg:py-28 bg-cream">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-10"><div class="flex items-center justify-center gap-4 mb-5"><div class="gold-line"></div><span class="text-xs tracking-[.25em] uppercase text-muted">Online Termin</span><div class="gold-line"></div></div><h2 class="text-4xl sm:text-5xl mb-4">Ihren Termin auswählen</h2><p class="text-muted">Diese Buchungsmaske ist eine Website-Demo.</p></div>
+
+      <form id="bookingSubmitForm" action="https://api.web3forms.com/submit" method="POST" class="bg-white border border-black/10 shadow-luxury">
+        <input type="hidden" name="access_key" value="50b2fe65-b00b-4b9e-ad62-3ba471098be2">
+        <input type="hidden" name="subject" value="Neue Salon-Termin-Demo – pimentaGROUP Web Concierge">
+        <input type="hidden" name="from_name" value="pimentaGROUP Web Concierge Demo Booking">
+        <input type="hidden" name="source" value="Salon Demo Terminbuchung">
+        <input type="hidden" name="service" id="bookingHiddenService">
+        <input type="hidden" name="service_price" id="bookingHiddenPrice">
+        <input type="hidden" name="staff_member" id="bookingHiddenStaff">
+        <input type="hidden" name="appointment_date" id="bookingHiddenDate">
+        <input type="hidden" name="appointment_time" id="bookingHiddenTime">
+
+        <div class="grid grid-cols-5 border-b border-black/10">
+          <div id="stepIndicator1" class="step active min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">01</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Service</span></div>
+          <div id="stepIndicator2" class="step min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">02</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Mitarbeiter</span></div>
+          <div id="stepIndicator3" class="step min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">03</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Termin</span></div>
+          <div id="stepIndicator4" class="step min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">04</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Daten</span></div>
+          <div id="stepIndicator5" class="step min-h-[68px] flex flex-col items-center justify-center gap-1"><span class="text-xs font-semibold">05</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Bestätigung</span></div>
+        </div>
+
+        <div class="p-5 sm:p-8 lg:p-10">
+          <!-- Step 1 -->
+          <div id="bookingStep1">
+            <div class="mb-7"><span class="text-xs text-gold uppercase tracking-widest">Schritt 1</span><h3 class="text-3xl mt-2">Was möchten Sie buchen?</h3></div>
+            <div class="grid sm:grid-cols-2 gap-3">
+              <button type="button" class="booking-option text-left border border-black/10 p-5 min-h-[110px]" data-service="Damen Haarschnitt" data-price="49 €"><div class="flex justify-between gap-3"><span class="font-semibold">Damen Haarschnitt</span><span class="text-gold">49 €</span></div><span class="block text-xs text-muted mt-3">ca. 60 Min.</span></button>
+              <button type="button" class="booking-option text-left border border-black/10 p-5 min-h-[110px]" data-service="Balayage" data-price="ab 129 €"><div class="flex justify-between gap-3"><span class="font-semibold">Balayage</span><span class="text-gold">ab 129 €</span></div><span class="block text-xs text-muted mt-3">ca. 150 Min.</span></button>
+              <button type="button" class="booking-option text-left border border-black/10 p-5 min-h-[110px]" data-service="Herren Styling" data-price="35 €"><div class="flex justify-between gap-3"><span class="font-semibold">Herren Styling</span><span class="text-gold">35 €</span></div><span class="block text-xs text-muted mt-3">ca. 45 Min.</span></button>
+              <button type="button" class="booking-option text-left border border-black/10 p-5 min-h-[110px]" data-service="Pflegebehandlung" data-price="29 €"><div class="flex justify-between gap-3"><span class="font-semibold">Pflegebehandlung</span><span class="text-gold">29 €</span></div><span class="block text-xs text-muted mt-3">ca. 30 Min.</span></button>
+            </div>
+            <button id="nextToStep2" type="button" disabled class="mt-7 w-full min-h-[52px] bg-charcoal text-white font-semibold text-sm disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black transition">Weiter</button>
+          </div>
+
+          <!-- Step 2 -->
+          <div id="bookingStep2" class="hidden">
+            <div class="mb-7"><span class="text-xs text-gold uppercase tracking-widest">Schritt 2</span><h3 class="text-3xl mt-2">Wer soll Sie betreuen?</h3></div>
+            <div class="space-y-3">
+              <button type="button" class="booking-option w-full text-left border border-black/10 p-5 flex items-center gap-4" data-staff="Anna Müller"><div class="w-12 h-12 rounded-full overflow-hidden shrink-0"><img src="https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&w=200&q=80" class="w-full h-full object-cover" alt=""></div><div><div class="font-semibold">Anna Müller</div><div class="text-xs text-muted mt-1">Creative Director · Color & Cut</div></div></button>
+              <button type="button" class="booking-option w-full text-left border border-black/10 p-5 flex items-center gap-4" data-staff="Lukas Schneider"><div class="w-12 h-12 rounded-full overflow-hidden shrink-0"><img src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?auto=format&fit=crop&w=200&q=80" class="w-full h-full object-cover" alt=""></div><div><div class="font-semibold">Lukas Schneider</div><div class="text-xs text-muted mt-1">Master Stylist · Herren & Styling</div></div></button>
+              <button type="button" class="booking-option w-full text-left border border-black/10 p-5 flex items-center gap-4" data-staff="Sophie Weber"><div class="w-12 h-12 rounded-full overflow-hidden shrink-0"><img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=200&q=80" class="w-full h-full object-cover" alt=""></div><div><div class="font-semibold">Sophie Weber</div><div class="text-xs text-muted mt-1">Color Expert · Blond & Pflege</div></div></button>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mt-7"><button type="button" id="backToStep1" class="min-h-[52px] border border-black/15 font-semibold text-sm hover:bg-ivory transition">Zurück</button><button type="button" id="nextToStep3" disabled class="min-h-[52px] bg-charcoal text-white font-semibold text-sm disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black transition">Weiter</button></div>
+          </div>
+
+          <!-- Step 3 -->
+          <div id="bookingStep3" class="hidden">
+            <div class="mb-7"><span class="text-xs text-gold uppercase tracking-widest">Schritt 3</span><h3 class="text-3xl mt-2">Wann passt es Ihnen?</h3></div>
+            <label for="bookingDate" class="block text-sm font-medium mb-2">Wunschtermin</label>
+            <input id="bookingDate" type="date" name="appointment_date_picker" min="2026-10-07" max="2099-12-31" inputmode="numeric" class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold">
+            <p id="bookingDateError" class="hidden text-xs text-red-700 mt-2">Bitte verwenden Sie ein gültiges Datum mit genau 4-stelliger Jahreszahl.</p>
+            <div class="mt-7"><label class="block text-sm font-medium mb-3">Verfügbare Zeiten</label><div class="grid grid-cols-3 gap-2">
+              <button type="button" class="time-option min-h-[48px] border border-black/10 text-sm" data-time="09:00">09:00</button>
+              <button type="button" class="time-option min-h-[48px] border border-black/10 text-sm" data-time="10:30">10:30</button>
+              <button type="button" class="time-option min-h-[48px] border border-black/10 text-sm" data-time="12:00">12:00</button>
+              <button type="button" class="time-option min-h-[48px] border border-black/10 text-sm" data-time="14:00">14:00</button>
+              <button type="button" class="time-option min-h-[48px] border border-black/10 text-sm" data-time="15:30">15:30</button>
+              <button type="button" class="time-option min-h-[48px] border border-black/10 text-sm" data-time="17:00">17:00</button>
+            </div></div>
+            <div class="grid grid-cols-2 gap-3 mt-7"><button type="button" id="backToStep2" class="min-h-[52px] border border-black/15 font-semibold text-sm hover:bg-ivory transition">Zurück</button><button type="button" id="nextToStep4" disabled class="min-h-[52px] bg-charcoal text-white font-semibold text-sm disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black transition">Weiter</button></div>
+          </div>
+
+          <!-- Step 4: contact + hCaptcha -->
+          <div id="bookingStep4" class="hidden">
+            <div class="mb-7"><span class="text-xs text-gold uppercase tracking-widest">Schritt 4</span><h3 class="text-3xl mt-2">Lassen Sie uns Ihre Kontaktdaten da</h3><p class="text-muted mt-3 leading-6">Damit wir Ihre Demo-Anfrage zuordnen können, benötigen wir noch Ihre Kontaktdaten.</p></div>
+            <div class="grid sm:grid-cols-2 gap-5">
+              <div><label for="bookingName" class="block text-xs uppercase tracking-widest text-muted mb-2">Name</label><input id="bookingName" type="text" name="name" placeholder="Ihr Name" required class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold"></div>
+              <div><label for="bookingPhone" class="block text-xs uppercase tracking-widest text-muted mb-2">Telefon</label><input id="bookingPhone" type="tel" name="phone" placeholder="Ihre Telefonnummer" required class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold"></div>
+            </div>
+            <div class="mt-5"><label for="bookingEmail" class="block text-xs uppercase tracking-widest text-muted mb-2">E-Mail</label><input id="bookingEmail" type="email" name="email" placeholder="Ihre E-Mail-Adresse" required class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold"></div>
+            <div class="mt-6 rounded-lg border border-black/10 bg-ivory p-5"><div class="text-xs uppercase tracking-widest text-muted mb-3">Spam-Schutz</div><div class="h-captcha" data-sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2" data-theme="light" data-lang="de"></div><p class="text-[11px] text-muted mt-2">Bitte bestätigen Sie, dass Sie kein Bot sind.</p></div>
+            <div class="mt-5"><label for="bookingPrivacy" class="flex items-start gap-3 cursor-pointer"><input id="bookingPrivacy" type="checkbox" name="privacy" required class="mt-1 w-5 h-5 shrink-0 accent-[#B79A65]"><span class="text-xs text-muted leading-5">Ich stimme der Kontaktaufnahme zur Terminvereinbarung zu (Datenschutz).</span></label></div>
+            <div class="grid grid-cols-2 gap-3 mt-7"><button type="button" id="backToStep3" class="min-h-[52px] border border-black/15 font-semibold text-sm hover:bg-ivory transition">Zurück</button><button type="submit" id="bookingSubmit" class="min-h-[52px] bg-charcoal text-white font-semibold text-sm hover:bg-black transition">Termin bestätigen</button></div>
+          </div>
+
+          <!-- Step 5 -->
+          <div id="bookingStep5" class="hidden">
+            <div class="text-center py-5">
+              <div class="mx-auto w-16 h-16 rounded-full bg-[#F5EFE3] flex items-center justify-center text-gold mb-6"><svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+              <span class="text-xs text-gold uppercase tracking-widest">Schritt 5</span>
+              <h3 class="text-3xl sm:text-4xl mt-2 mb-4">Vielen Dank für Ihre Anfrage</h3>
+              <p class="text-muted max-w-md mx-auto leading-7">In einer echten Salon-Website würde hier die verbindliche Terminbestätigung oder die Übergabe an das Buchungssystem erfolgen.</p>
+              <div class="max-w-md mx-auto mt-8 bg-ivory p-5 text-left">
+                <div class="flex justify-between py-2 border-b border-black/10"><span class="text-sm text-muted">Service</span><strong id="summaryService" class="text-sm"></strong></div>
+                <div class="flex justify-between py-2 border-b border-black/10"><span class="text-sm text-muted">Mitarbeiter</span><strong id="summaryStaff" class="text-sm"></strong></div>
+                <div class="flex justify-between py-2 border-b border-black/10"><span class="text-sm text-muted">Datum</span><strong id="summaryDate" class="text-sm"></strong></div>
+                <div class="flex justify-between py-2 border-b border-black/10"><span class="text-sm text-muted">Uhrzeit</span><strong id="summaryTime" class="text-sm"></strong></div>
+                <div class="flex justify-between py-2"><span class="text-sm text-muted">Kontakt</span><strong id="summaryContact" class="text-sm text-right"></strong></div>
+              </div>
+              <button id="restartBooking" type="button" class="mt-7 min-h-[52px] px-7 bg-charcoal text-white font-semibold text-sm hover:bg-black transition">Neue Auswahl</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- SEO / AI -->
+  <section class="py-14 sm:py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="relative overflow-hidden bg-charcoal text-white p-7 sm:p-10 lg:p-12">
+        <div class="absolute -right-24 -top-24 w-72 h-72 rounded-full border border-white/10"></div><div class="absolute -right-12 -top-12 w-48 h-48 rounded-full border border-white/10"></div>
+        <div class="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+          <div class="max-w-3xl"><div class="flex items-center gap-3 mb-4"><span class="w-2 h-2 rounded-full bg-gold"></span><span class="text-xs tracking-[.2em] uppercase text-white/60">Digital Visibility</span></div><h2 class="text-3xl sm:text-4xl mb-4">Lokal sichtbar. Auch für KI.</h2><p class="text-white/65 leading-7">Inklusive lokaler SEO & ChatGPT/KI-Auffindbarkeit (Schema.org strukturierte Daten).</p></div>
+          <div class="shrink-0 border border-white/15 p-5 sm:p-6 max-w-sm"><div class="flex gap-4"><div class="w-11 h-11 shrink-0 bg-white/10 flex items-center justify-center text-goldLight">✓</div><div><div class="font-semibold text-sm">Strukturierte Daten</div><div class="text-xs text-white/50 mt-1 leading-5">Für Suchmaschinen und moderne KI-Systeme optimiert.</div></div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- B2B LEAD GENERATION -->
+  <section id="kontakt" class="py-20 sm:py-24 lg:py-28 bg-ivory">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-10"><div class="flex items-center justify-center gap-4 mb-5"><div class="gold-line"></div><span class="text-xs tracking-[.25em] uppercase text-muted">Für Saloninhaber</span><div class="gold-line"></div></div><h2 class="text-4xl sm:text-5xl leading-tight mb-5">Möchten Sie eine solche Website mit Online-Terminbuchung für Ihren Salon?</h2></div>
+
+      <div class="bg-charcoal text-white p-5 sm:p-8 lg:p-10 shadow-luxury">
+        <div class="mb-8">
+          <p class="text-white/65 leading-7">Lassen Sie sich unverbindlich beraten. Wir richten alles persönlich für Sie ein.</p>
+          <div class="mt-6 grid sm:grid-cols-3 gap-4">
+            <div class="border border-white/10 p-4"><div class="text-goldLight text-lg mb-2">01</div><div class="text-sm leading-5">Online-Terminbuchung & Team-Verwaltung</div></div>
+            <div class="border border-white/10 p-4"><div class="text-goldLight text-lg mb-2">02</div><div class="text-sm leading-5">WhatsApp-Integration</div></div>
+            <div class="border border-white/10 p-4"><div class="text-goldLight text-lg mb-2">03</div><div class="text-sm leading-5">Grundlagen für lokale SEO & KI-Auffindbarkeit (Schema.org)</div></div>
+          </div>
+        </div>
+
+        <form id="leadForm" action="https://api.web3forms.com/submit" method="POST" class="space-y-5">
+          <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY">
+          <input type="hidden" name="subject" value="Neue Demo-Anfrage – pimentaGROUP Web Concierge">
+          <input type="hidden" name="from_name" value="pimentaGROUP Web Concierge">
+          <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off">
+
+          <div class="grid sm:grid-cols-2 gap-5">
+            <div><label for="name" class="block text-xs uppercase tracking-widest text-white/60 mb-2">Name</label><input id="name" type="text" name="name" placeholder="Ihr Name" required autocomplete="name" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white placeholder:text-white/35 outline-none focus:border-gold"></div>
+            <div><label for="salon_name" class="block text-xs uppercase tracking-widest text-white/60 mb-2">Salon Name</label><input id="salon_name" type="text" name="salon_name" placeholder="Name Ihres Salons" required autocomplete="organization" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white placeholder:text-white/35 outline-none focus:border-gold"></div>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-5">
+            <div><label for="email" class="block text-xs uppercase tracking-widest text-white/60 mb-2">E-Mail</label><input id="email" type="email" name="email" placeholder="Ihre E-Mail-Adresse" required autocomplete="email" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white placeholder:text-white/35 outline-none focus:border-gold"></div>
+            <div><label for="phone" class="block text-xs uppercase tracking-widest text-white/60 mb-2">Telefon</label><input id="phone" type="tel" name="phone" placeholder="Telefonnummer für Rückruf" required autocomplete="tel" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white placeholder:text-white/35 outline-none focus:border-gold"></div>
+          </div>
+          <div><label for="preferred_time" class="block text-xs uppercase tracking-widest text-white/60 mb-2">Bevorzugtes Datum</label><input id="preferred_time" type="date" name="preferred_date" min="2026-10-07" max="2099-12-31" inputmode="numeric" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white outline-none focus:border-gold"></div>
+          <p id="leadDateError" class="hidden text-xs text-red-300 -mt-2">Bitte verwenden Sie ein gültiges Datum mit genau 4-stelliger Jahreszahl.</p>
+          <div class="pt-2"><div class="text-xs uppercase tracking-widest text-white/60 mb-3">Spam-Schutz</div><div class="h-captcha" data-sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2" data-theme="light" data-lang="de"></div></div>
+          <div><label for="privacy" class="flex items-start gap-3 cursor-pointer"><input type="checkbox" name="privacy" id="privacy" required class="mt-1 w-5 h-5 shrink-0 accent-[#B79A65]"><span class="text-xs text-white/60 leading-5">Ich stimme der Kontaktaufnahme zur Terminvereinbarung zu (Datenschutz).</span></label></div>
+          <button id="submitButton" type="submit" class="w-full sm:w-auto sm:min-w-[280px] sm:mx-auto sm:flex min-h-[54px] items-center justify-center bg-white text-charcoal px-7 font-semibold text-sm hover:bg-gold hover:text-white transition">Kostenlosen Demo-Termin anfragen</button>
+          <p class="text-[11px] text-white/35 text-center leading-5">Ihre Daten werden ausschließlich zur Kontaktaufnahme bezüglich dieser Anfrage verwendet.</p>
+        </form>
+
+        <div id="formSuccess" class="hidden text-center py-10"><div class="w-16 h-16 mx-auto bg-white/10 flex items-center justify-center mb-6 text-goldLight text-2xl">✓</div><h3 class="text-3xl mb-3">Vielen Dank!</h3><p class="text-white/60 leading-7">Ihre Anfrage wurde erfolgreich übermittelt. Wir melden uns persönlich bei Ihnen.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-charcoal text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div class="text-center sm:text-left"><div class="font-serif text-xl tracking-wide">ÉLAN</div><div class="text-[8px] tracking-[.35em] uppercase text-white/40 mt-1">Hair & Beauty</div></div>
+        <div class="flex flex-wrap justify-center gap-x-6 gap-y-3 text-xs text-white/50"><a href="#" class="hover:text-white transition" onclick="showPlaceholder(event,'Datenschutzerklärung')">Datenschutz</a><a href="#" class="hover:text-white transition" onclick="showPlaceholder(event,'Impressum')">Impressum</a></div>
+      </div>
+      <div class="border-t border-white/10 py-6 text-center"><p class="text-xs text-white/35">pimentaGROUP Web Concierge · Demo-Website</p></div>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast fixed bottom-5 left-4 right-4 sm:left-auto sm:right-5 sm:max-w-sm z-[100]"><div class="bg-charcoal text-white shadow-luxury p-4 border border-white/10"><div class="flex gap-3 items-start"><div class="text-goldLight mt-0.5">✓</div><div><div id="toastTitle" class="font-semibold text-sm"></div><div id="toastText" class="text-xs text-white/60 mt-1"></div></div></div></div></div>
+
+  <script>
+    const menuButton = document.getElementById('menuButton');
+    const mobileMenu = document.getElementById('mobileMenu');
+    menuButton.addEventListener('click', () => { const open = mobileMenu.classList.toggle('open'); menuButton.setAttribute('aria-expanded', open ? 'true' : 'false'); });
+    document.querySelectorAll('.mobile-link').forEach(link => link.addEventListener('click', () => { mobileMenu.classList.remove('open'); menuButton.setAttribute('aria-expanded','false'); }));
+
+    function showToast(title, text) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastTitle').textContent = title;
+      document.getElementById('toastText').textContent = text;
+      toast.classList.add('show');
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    if (window.location.protocol === 'file:') {
+      setTimeout(() => showToast('hCaptcha: bitte online testen','hCaptcha funktioniert nicht direkt aus einer file://-Datei. Öffnen Sie die Website über einen echten Webserver/Hosting. 🎯'), 900);
+    }
+
+    document.getElementById('whatsappHero').addEventListener('click', () => showToast('WhatsApp-Buchung','In der echten Website wird hier direkt der WhatsApp-Chat des Salons geöffnet.'));
+
+    const bookingState = { service:'', price:'', staff:'', date:'', time:'' };
+    const bookingForm = document.getElementById('bookingSubmitForm');
+    const bookingDate = document.getElementById('bookingDate');
+    const bookingDateError = document.getElementById('bookingDateError');
+    const leadDate = document.getElementById('preferred_time');
+    const leadDateError = document.getElementById('leadDateError');
+
+    function showBookingStep(step) {
+      for (let i=1;i<=5;i++) {
+        document.getElementById(`bookingStep${i}`).classList.toggle('hidden', i !== step);
+        const indicator = document.getElementById(`stepIndicator${i}`);
+        indicator.classList.remove('active','completed');
+        if (i === step) indicator.classList.add('active');
+        if (i < step) indicator.classList.add('completed');
+      }
+    }
+
+    function isFourDigitYearValue(value) { return /^\d{4}-\d{2}-\d{2}$/.test(value); }
+
+    function validateBookingDate() {
+      const valid = !bookingDate.value || isFourDigitYearValue(bookingDate.value);
+      bookingDate.setCustomValidity(valid ? '' : 'Bitte verwenden Sie eine vierstellige Jahreszahl.');
+      bookingDateError.classList.toggle('hidden', valid);
+      return valid;
+    }
+
+    function validateLeadDate() {
+      const valid = !leadDate.value || isFourDigitYearValue(leadDate.value);
+      leadDate.setCustomValidity(valid ? '' : 'Bitte verwenden Sie eine vierstellige Jahreszahl.');
+      leadDateError.classList.toggle('hidden', valid);
+      return valid;
+    }
+
+    bookingDate.addEventListener('input', validateBookingDate);
+    bookingDate.addEventListener('change', () => { validateBookingDate(); bookingState.date = bookingDate.value; validateStep3(); });
+    leadDate.addEventListener('input', validateLeadDate);
+    leadDate.addEventListener('change', validateLeadDate);
+
+    document.querySelectorAll('[data-service]').forEach(button => button.addEventListener('click', () => {
+      document.querySelectorAll('[data-service]').forEach(x => x.classList.remove('selected'));
+      button.classList.add('selected');
+      bookingState.service = button.dataset.service;
+      bookingState.price = button.dataset.price;
+      document.getElementById('nextToStep2').disabled = false;
+    }));
+
+    document.getElementById('nextToStep2').addEventListener('click', () => bookingState.service && showBookingStep(2));
+
+    document.querySelectorAll('[data-staff]').forEach(button => button.addEventListener('click', () => {
+      document.querySelectorAll('[data-staff]').forEach(x => x.classList.remove('selected'));
+      button.classList.add('selected');
+      bookingState.staff = button.dataset.staff;
+      document.getElementById('nextToStep3').disabled = false;
+    }));
+
+    document.getElementById('backToStep1').addEventListener('click', () => showBookingStep(1));
+    document.getElementById('nextToStep3').addEventListener('click', () => bookingState.staff && showBookingStep(3));
+    document.getElementById('backToStep2').addEventListener('click', () => showBookingStep(2));
+
+    document.querySelectorAll('.time-option').forEach(button => button.addEventListener('click', () => {
+      document.querySelectorAll('.time-option').forEach(x => x.classList.remove('selected'));
+      button.classList.add('selected');
+      bookingState.time = button.dataset.time;
+      document.getElementById('bookingHiddenTime').value = bookingState.time;
+      validateStep3();
+    }));
+
+    function validateStep3() {
+      document.getElementById('nextToStep4').disabled = !(bookingState.date && bookingState.time && validateBookingDate());
+    }
+
+    document.getElementById('nextToStep4').addEventListener('click', () => {
+      if (!bookingState.date || !bookingState.time || !validateBookingDate()) return;
+      document.getElementById('bookingHiddenService').value = bookingState.service;
+      document.getElementById('bookingHiddenPrice').value = bookingState.price;
+      document.getElementById('bookingHiddenStaff').value = bookingState.staff;
+      document.getElementById('bookingHiddenDate').value = bookingState.date;
+      showBookingStep(4);
+    });
+
+    document.getElementById('backToStep3').addEventListener('click', () => showBookingStep(3));
+
+    function getCaptchaToken(form) {
+      const field = form.querySelector('textarea[name="h-captcha-response"]');
+      return field ? field.value : '';
+    }
+
+    function resetBooking() {
+      bookingState.service=''; bookingState.price=''; bookingState.staff=''; bookingState.date=''; bookingState.time='';
+      document.querySelectorAll('.booking-option,.time-option').forEach(x => x.classList.remove('selected'));
+      document.getElementById('nextToStep2').disabled = true;
+      document.getElementById('nextToStep3').disabled = true;
+      document.getElementById('nextToStep4').disabled = true;
+      bookingForm.reset();
+      document.getElementById('summaryService').textContent='';
+      document.getElementById('summaryStaff').textContent='';
+      document.getElementById('summaryDate').textContent='';
+      document.getElementById('summaryTime').textContent='';
+      document.getElementById('summaryContact').textContent='';
+      showBookingStep(1);
+    }
+
+    bookingForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!bookingForm.reportValidity() || !validateBookingDate()) return;
+      if (bookingForm.querySelector('input[name="access_key"]').value === 'YOUR_WEB3FORMS_ACCESS_KEY') {
+        showToast('Web3Forms noch nicht eingerichtet','Bitte zuerst den Web3Forms Access Key im HTML eintragen.');
+        return;
+      }
+      const captcha = getCaptchaToken(bookingForm);
+      if (!captcha) {
+        showToast('hCaptcha fehlt','Bitte lösen Sie zuerst die hCaptcha-Prüfung.');
+        return;
+      }
+      const button = document.getElementById('bookingSubmit');
+      const original = button.textContent;
+      button.disabled = true; button.textContent = 'Wird gesendet …';
+      try {
+        const response = await fetch(bookingForm.action, { method:'POST', body:new FormData(bookingForm), headers:{Accept:'application/json'} });
+        const result = await response.json();
+        if (!result.success) throw new Error(result.message || 'Übermittlung fehlgeschlagen');
+        const date = new Date(`${bookingState.date}T00:00:00`).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+        document.getElementById('summaryService').textContent = `${bookingState.service} (${bookingState.price})`;
+        document.getElementById('summaryStaff').textContent = bookingState.staff;
+        document.getElementById('summaryDate').textContent = date;
+        document.getElementById('summaryTime').textContent = `${bookingState.time} Uhr`;
+        document.getElementById('summaryContact').textContent = document.getElementById('bookingName').value;
+        showBookingStep(5);
+        showToast('Anfrage gesendet','Ihre Demo-Termin-Anfrage wurde übermittelt.');
+      } catch (error) {
+        showToast('Fehler beim Senden','Bitte versuchen Sie es später erneut.');
+      } finally { button.disabled = false; button.textContent = original; }
+    });
+
+    document.getElementById('restartBooking').addEventListener('click', resetBooking);
+
+    const leadForm = document.getElementById('leadForm');
+    const submitButton = document.getElementById('submitButton');
+    const formSuccess = document.getElementById('formSuccess');
+
+    leadForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!leadForm.reportValidity() || !validateLeadDate()) return;
+      if (leadForm.querySelector('input[name="access_key"]').value === 'YOUR_WEB3FORMS_ACCESS_KEY') {
+        showToast('Web3Forms noch nicht eingerichtet','Bitte zuerst den Web3Forms Access Key im HTML eintragen.');
+        return;
+      }
+      const captcha = getCaptchaToken(leadForm);
+      if (!captcha) {
+        showToast('hCaptcha fehlt','Bitte lösen Sie zuerst die hCaptcha-Prüfung.');
+        return;
+      }
+      const original = submitButton.textContent;
+      submitButton.disabled = true; submitButton.textContent = 'Wird gesendet …';
+      try {
+        const response = await fetch(leadForm.action, { method:'POST', body:new FormData(leadForm), headers:{Accept:'application/json'} });
+        const result = await response.json();
+        if (!result.success) throw new Error(result.message || 'Übermittlung fehlgeschlagen');
+        leadForm.classList.add('hidden'); formSuccess.classList.remove('hidden');
+        showToast('Anfrage gesendet','Vielen Dank! Ihre Demo-Anfrage wurde übermittelt.');
+      } catch (error) {
+        showToast('Fehler beim Senden','Bitte versuchen Sie es später erneut.');
+      } finally { submitButton.disabled = false; submitButton.textContent = original; }
+    });
+
+    function showPlaceholder(event, name) { event.preventDefault(); showToast(name,'Diese Seite ist in dieser Demo noch als Platzhalter hinterlegt.'); }
+
+    showBookingStep(1);
+  </script>
+
+  <!-- hCaptcha: official Web3Forms free-plan sitekey / manual setup -->
+  <script src="https://js.hcaptcha.com/1/api.js?hl=de" async defer></script>
+
+  <!-- Schema.org example -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"HairSalon",
+    "name":"ÉLAN Hair & Beauty",
+    "description":"Premium Hair Salon in Münster mit Haarschnitten, Colorationen, Balayage und Pflegebehandlungen.",
+    "url":"https://example.com",
+    "telephone":"+49 251 000000",
+    "priceRange":"€€",
+    "address":{"@type":"PostalAddress","streetAddress":"Musterstraße 10","postalCode":"48143","addressLocality":"Münster","addressCountry":"DE"},
+    "areaServed":{"@type":"City","name":"Münster"}
+  }
+  </script>
+</body>
+</html>
