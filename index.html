@@ -221,7 +221,7 @@
           <div id="bookingStep3" class="hidden">
             <div class="mb-7"><span class="text-xs text-gold uppercase tracking-widest">Schritt 3</span><h3 class="text-3xl mt-2">Wann passt es Ihnen?</h3></div>
             <label for="bookingDate" class="block text-sm font-medium mb-2">Wunschtermin</label>
-            <input id="bookingDate" type="date" name="appointment_date_picker" min="2026-10-07" max="2099-12-31" inputmode="numeric" class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold">
+            <input id="bookingDate" type="date" name="appointment_date_picker" min="" max="2099-12-31" inputmode="numeric" class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold">
             <p id="bookingDateError" class="hidden text-xs text-red-700 mt-2">Bitte verwenden Sie ein gültiges Datum mit genau 4-stelliger Jahreszahl.</p>
             <div class="mt-7"><label class="block text-sm font-medium mb-3">Verfügbare Zeiten</label><div class="grid grid-cols-3 gap-2">
               <button type="button" class="time-option min-h-[48px] border border-black/10 text-sm" data-time="09:00">09:00</button>
@@ -242,9 +242,9 @@
               <div><label for="bookingPhone" class="block text-xs uppercase tracking-widest text-muted mb-2">Telefon</label><input id="bookingPhone" type="tel" name="phone" placeholder="Ihre Telefonnummer" required class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold"></div>
             </div>
             <div class="mt-5"><label for="bookingEmail" class="block text-xs uppercase tracking-widest text-muted mb-2">E-Mail</label><input id="bookingEmail" type="email" name="email" placeholder="Ihre E-Mail-Adresse" required class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold"></div>
-            <div class="mt-6 rounded-lg border border-black/10 bg-ivory p-5"><div class="text-xs uppercase tracking-widest text-muted mb-3">Spam-Schutz</div><div class="h-captcha" data-sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2" data-theme="light" data-lang="de"></div><p class="text-[11px] text-muted mt-2">Bitte bestätigen Sie, dass Sie kein Bot sind.</p></div>
+            <div class="mt-6 rounded-lg border border-black/10 bg-ivory p-5"><div class="text-xs uppercase tracking-widest text-muted mb-3">Spam-Schutz</div><div id="bookingCaptcha" class="h-captcha" data-sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2" data-theme="light" data-lang="de" data-callback="bookingCaptchaSolved" data-expired-callback="bookingCaptchaExpired" data-error-callback="bookingCaptchaError"></div><p class="text-[11px] text-muted mt-2">Bitte bestätigen Sie, dass Sie kein Bot sind.</p></div>
             <div class="mt-5"><label for="bookingPrivacy" class="flex items-start gap-3 cursor-pointer"><input id="bookingPrivacy" type="checkbox" name="privacy" required class="mt-1 w-5 h-5 shrink-0 accent-[#B79A65]"><span class="text-xs text-muted leading-5">Ich stimme der Kontaktaufnahme zur Terminvereinbarung zu (Datenschutz).</span></label></div>
-            <div class="grid grid-cols-2 gap-3 mt-7"><button type="button" id="backToStep3" class="min-h-[52px] border border-black/15 font-semibold text-sm hover:bg-ivory transition">Zurück</button><button type="submit" id="bookingSubmit" class="min-h-[52px] bg-charcoal text-white font-semibold text-sm hover:bg-black transition">Termin bestätigen</button></div>
+            <div class="grid grid-cols-2 gap-3 mt-7"><button type="button" id="backToStep3" class="min-h-[52px] border border-black/15 font-semibold text-sm hover:bg-ivory transition">Zurück</button><button type="button" id="bookingSubmit" class="min-h-[52px] bg-charcoal text-white font-semibold text-sm hover:bg-black transition">Termin bestätigen</button></div>
           </div>
 
           <!-- Step 5 -->
@@ -298,9 +298,9 @@
             <div><label for="email" class="block text-xs uppercase tracking-widest text-white/60 mb-2">E-Mail</label><input id="email" type="email" name="email" placeholder="Ihre E-Mail-Adresse" required autocomplete="email" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white placeholder:text-white/35 outline-none focus:border-gold"></div>
             <div><label for="phone" class="block text-xs uppercase tracking-widest text-white/60 mb-2">Telefon</label><input id="phone" type="tel" name="phone" placeholder="Telefonnummer für Rückruf" required autocomplete="tel" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white placeholder:text-white/35 outline-none focus:border-gold"></div>
           </div>
-          <div><label for="preferred_time" class="block text-xs uppercase tracking-widest text-white/60 mb-2">Bevorzugtes Datum</label><input id="preferred_time" type="date" name="preferred_date" min="2026-10-07" max="2099-12-31" inputmode="numeric" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white outline-none focus:border-gold"></div>
+          <div><label for="preferred_time" class="block text-xs uppercase tracking-widest text-white/60 mb-2">Bevorzugtes Datum</label><input id="preferred_time" type="date" name="preferred_date" min="" max="2099-12-31" inputmode="numeric" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white outline-none focus:border-gold"></div>
           <p id="leadDateError" class="hidden text-xs text-red-300 -mt-2">Bitte verwenden Sie ein gültiges Datum mit genau 4-stelliger Jahreszahl.</p>
-          <div class="pt-2"><div class="text-xs uppercase tracking-widest text-white/60 mb-3">Spam-Schutz</div><div class="h-captcha" data-sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2" data-theme="light" data-lang="de"></div></div>
+          <div class="pt-2"><div class="text-xs uppercase tracking-widest text-white/60 mb-3">Spam-Schutz</div><div id="leadCaptcha" class="h-captcha" data-sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2" data-theme="light" data-lang="de" data-callback="leadCaptchaSolved" data-expired-callback="leadCaptchaExpired" data-error-callback="leadCaptchaError"></div></div>
           <div><label for="privacy" class="flex items-start gap-3 cursor-pointer"><input type="checkbox" name="privacy" id="privacy" required class="mt-1 w-5 h-5 shrink-0 accent-[#B79A65]"><span class="text-xs text-white/60 leading-5">Ich stimme der Kontaktaufnahme zur Terminvereinbarung zu (Datenschutz).</span></label></div>
           <button id="submitButton" type="submit" class="w-full sm:w-auto sm:min-w-[280px] sm:mx-auto sm:flex min-h-[54px] items-center justify-center bg-white text-charcoal px-7 font-semibold text-sm hover:bg-gold hover:text-white transition">Kostenlosen Demo-Termin anfragen</button>
           <p class="text-[11px] text-white/35 text-center leading-5">Ihre Daten werden ausschließlich zur Kontaktaufnahme bezüglich dieser Anfrage verwendet.</p>
@@ -351,35 +351,145 @@
     const bookingDateError = document.getElementById('bookingDateError');
     const leadDate = document.getElementById('preferred_time');
     const leadDateError = document.getElementById('leadDateError');
+    const timeButtons = Array.from(document.querySelectorAll('.time-option'));
+
+    function getTodayISO() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getCurrentMinutes() {
+      const now = new Date();
+      return now.getHours() * 60 + now.getMinutes();
+    }
+
+    function isFourDigitYearValue(value) {
+      return /^\d{4}-\d{2}-\d{2}$/.test(value);
+    }
 
     function showBookingStep(step) {
-      for (let i=1;i<=5;i++) {
+      for (let i = 1; i <= 5; i++) {
         document.getElementById(`bookingStep${i}`).classList.toggle('hidden', i !== step);
         const indicator = document.getElementById(`stepIndicator${i}`);
-        indicator.classList.remove('active','completed');
+        indicator.classList.remove('active', 'completed');
         if (i === step) indicator.classList.add('active');
         if (i < step) indicator.classList.add('completed');
       }
     }
 
-    function isFourDigitYearValue(value) { return /^\d{4}-\d{2}-\d{2}$/.test(value); }
+    function setDateLimits() {
+      const today = getTodayISO();
+      bookingDate.min = today;
+      bookingDate.max = '2099-12-31';
+      leadDate.min = today;
+      leadDate.max = '2099-12-31';
+    }
 
     function validateBookingDate() {
-      const valid = !bookingDate.value || isFourDigitYearValue(bookingDate.value);
-      bookingDate.setCustomValidity(valid ? '' : 'Bitte verwenden Sie eine vierstellige Jahreszahl.');
+      const value = bookingDate.value;
+      const today = getTodayISO();
+      let message = '';
+      let valid = true;
+
+      if (!value) {
+        valid = false;
+        message = 'Bitte wählen Sie ein Datum aus.';
+      } else if (!isFourDigitYearValue(value)) {
+        valid = false;
+        message = 'Bitte verwenden Sie eine vierstellige Jahreszahl.';
+      } else if (value < today) {
+        valid = false;
+        message = 'Ein Termin in der Vergangenheit kann nicht gebucht werden.';
+      } else if (value > '2099-12-31') {
+        valid = false;
+        message = 'Bitte wählen Sie ein gültiges Datum.';
+      }
+
+      bookingDate.setCustomValidity(valid ? '' : message);
+      bookingDateError.textContent = message;
       bookingDateError.classList.toggle('hidden', valid);
       return valid;
     }
 
     function validateLeadDate() {
-      const valid = !leadDate.value || isFourDigitYearValue(leadDate.value);
-      leadDate.setCustomValidity(valid ? '' : 'Bitte verwenden Sie eine vierstellige Jahreszahl.');
+      const value = leadDate.value;
+      const today = getTodayISO();
+      let message = '';
+      let valid = true;
+
+      if (value && !isFourDigitYearValue(value)) {
+        valid = false;
+        message = 'Bitte verwenden Sie eine vierstellige Jahreszahl.';
+      } else if (value && value < today) {
+        valid = false;
+        message = 'Bitte wählen Sie heute oder ein zukünftiges Datum.';
+      }
+
+      leadDate.setCustomValidity(valid ? '' : message);
+      leadDateError.textContent = message;
       leadDateError.classList.toggle('hidden', valid);
       return valid;
     }
 
-    bookingDate.addEventListener('input', validateBookingDate);
-    bookingDate.addEventListener('change', () => { validateBookingDate(); bookingState.date = bookingDate.value; validateStep3(); });
+    function refreshTimeButtons() {
+      const selectedDate = bookingDate.value;
+      const today = getTodayISO();
+      const currentMinutes = getCurrentMinutes();
+      let anyAvailable = false;
+
+      timeButtons.forEach(button => {
+        const [hours, minutes] = button.dataset.time.split(':').map(Number);
+        const timeMinutes = hours * 60 + minutes;
+        const isPastToday = selectedDate === today && timeMinutes <= currentMinutes;
+        const shouldDisable = !selectedDate || selectedDate < today || isPastToday;
+
+        button.disabled = shouldDisable;
+        button.setAttribute('aria-disabled', shouldDisable ? 'true' : 'false');
+
+        if (shouldDisable) {
+          button.classList.add('opacity-30', 'cursor-not-allowed', 'line-through');
+          button.classList.remove('selected');
+          if (bookingState.time === button.dataset.time) bookingState.time = '';
+        } else {
+          anyAvailable = true;
+          button.classList.remove('opacity-30', 'cursor-not-allowed', 'line-through');
+        }
+      });
+
+      if (selectedDate === today && !anyAvailable) {
+        showToast('Keine Zeiten mehr verfügbar', 'Für heute sind keine späteren Demo-Termine mehr verfügbar. Bitte wählen Sie ein anderes Datum.');
+      }
+
+      validateStep3();
+    }
+
+    function validateStep3() {
+      const validDate = validateBookingDate();
+      const validTime = !!bookingState.time && timeButtons.some(button => button.dataset.time === bookingState.time && !button.disabled);
+      document.getElementById('nextToStep4').disabled = !(validDate && validTime);
+    }
+
+    setDateLimits();
+
+    bookingDate.addEventListener('input', () => {
+      validateBookingDate();
+      bookingState.date = bookingDate.value;
+      bookingState.time = '';
+      timeButtons.forEach(button => button.classList.remove('selected'));
+      refreshTimeButtons();
+    });
+
+    bookingDate.addEventListener('change', () => {
+      validateBookingDate();
+      bookingState.date = bookingDate.value;
+      bookingState.time = '';
+      timeButtons.forEach(button => button.classList.remove('selected'));
+      refreshTimeButtons();
+    });
+
     leadDate.addEventListener('input', validateLeadDate);
     leadDate.addEventListener('change', validateLeadDate);
 
@@ -391,7 +501,9 @@
       document.getElementById('nextToStep2').disabled = false;
     }));
 
-    document.getElementById('nextToStep2').addEventListener('click', () => bookingState.service && showBookingStep(2));
+    document.getElementById('nextToStep2').addEventListener('click', () => {
+      if (bookingState.service) showBookingStep(2);
+    });
 
     document.querySelectorAll('[data-staff]').forEach(button => button.addEventListener('click', () => {
       document.querySelectorAll('[data-staff]').forEach(x => x.classList.remove('selected'));
@@ -401,10 +513,13 @@
     }));
 
     document.getElementById('backToStep1').addEventListener('click', () => showBookingStep(1));
-    document.getElementById('nextToStep3').addEventListener('click', () => bookingState.staff && showBookingStep(3));
+    document.getElementById('nextToStep3').addEventListener('click', () => {
+      if (bookingState.staff) showBookingStep(3);
+    });
     document.getElementById('backToStep2').addEventListener('click', () => showBookingStep(2));
 
-    document.querySelectorAll('.time-option').forEach(button => button.addEventListener('click', () => {
+    timeButtons.forEach(button => button.addEventListener('click', () => {
+      if (button.disabled) return;
       document.querySelectorAll('.time-option').forEach(x => x.classList.remove('selected'));
       button.classList.add('selected');
       bookingState.time = button.dataset.time;
@@ -412,12 +527,23 @@
       validateStep3();
     }));
 
-    function validateStep3() {
-      document.getElementById('nextToStep4').disabled = !(bookingState.date && bookingState.time && validateBookingDate());
-    }
-
     document.getElementById('nextToStep4').addEventListener('click', () => {
-      if (!bookingState.date || !bookingState.time || !validateBookingDate()) return;
+      validateBookingDate();
+      refreshTimeButtons();
+
+      const validDate = validateBookingDate();
+      const validTime = !!bookingState.time && timeButtons.some(button => button.dataset.time === bookingState.time && !button.disabled);
+
+      if (!validDate) {
+        bookingDate.focus();
+        return;
+      }
+
+      if (!validTime) {
+        showToast('Uhrzeit auswählen', 'Bitte wählen Sie eine verfügbare Uhrzeit.');
+        return;
+      }
+
       document.getElementById('bookingHiddenService').value = bookingState.service;
       document.getElementById('bookingHiddenPrice').value = bookingState.price;
       document.getElementById('bookingHiddenStaff').value = bookingState.staff;
@@ -427,35 +553,97 @@
 
     document.getElementById('backToStep3').addEventListener('click', () => showBookingStep(3));
 
-    function getCaptchaToken(form) {
-      const field = form.querySelector('textarea[name="h-captcha-response"]');
-      return field ? field.value : '';
-    }
+    let bookingCaptchaSolvedState = false;
+    let leadCaptchaSolvedState = false;
+
+    window.bookingCaptchaSolved = function () { bookingCaptchaSolvedState = true; };
+    window.bookingCaptchaExpired = function () { bookingCaptchaSolvedState = false; };
+    window.bookingCaptchaError = function () { bookingCaptchaSolvedState = false; };
+    window.leadCaptchaSolved = function () { leadCaptchaSolvedState = true; };
+    window.leadCaptchaExpired = function () { leadCaptchaSolvedState = false; };
+    window.leadCaptchaError = function () { leadCaptchaSolvedState = false; };
 
     function resetBooking() {
-      bookingState.service=''; bookingState.price=''; bookingState.staff=''; bookingState.date=''; bookingState.time='';
+      bookingState.service='';
+      bookingState.price='';
+      bookingState.staff='';
+      bookingState.date='';
+      bookingState.time='';
+      bookingCaptchaSolvedState = false;
+
       document.querySelectorAll('.booking-option,.time-option').forEach(x => x.classList.remove('selected'));
       document.getElementById('nextToStep2').disabled = true;
       document.getElementById('nextToStep3').disabled = true;
       document.getElementById('nextToStep4').disabled = true;
       bookingForm.reset();
+      setDateLimits();
+
       document.getElementById('summaryService').textContent='';
       document.getElementById('summaryStaff').textContent='';
       document.getElementById('summaryDate').textContent='';
       document.getElementById('summaryTime').textContent='';
       document.getElementById('summaryContact').textContent='';
+
+      if (window.hcaptcha && document.getElementById('bookingCaptcha')) {
+        try { window.hcaptcha.reset(document.getElementById('bookingCaptcha')); } catch (_) {}
+      }
+
       showBookingStep(1);
+      refreshTimeButtons();
     }
 
-    bookingForm.addEventListener('submit', event => {
-      event.preventDefault();
+    // DEMO BOOKING: all fields are validated, but NOTHING is sent anywhere.
+    document.getElementById('bookingSubmit').addEventListener('click', () => {
+      const name = document.getElementById('bookingName');
+      const phone = document.getElementById('bookingPhone');
+      const email = document.getElementById('bookingEmail');
+      const privacy = document.getElementById('bookingPrivacy');
 
-      // DEMO-BOOKING: nothing is sent here.
-      // The form only demonstrates the complete booking flow.
-      if (!bookingForm.reportValidity() || !validateBookingDate()) return;
+      // Final protection against choosing a past date/time.
+      bookingDate.value = bookingState.date;
+      if (!validateBookingDate()) {
+        showBookingStep(3);
+        bookingDate.focus();
+        return;
+      }
+      refreshTimeButtons();
+      const chosenTimeButton = timeButtons.find(button => button.dataset.time === bookingState.time);
+      if (!chosenTimeButton || chosenTimeButton.disabled) {
+        showBookingStep(3);
+        showToast('Termin nicht verfügbar', 'Die ausgewählte Uhrzeit liegt bereits in der Vergangenheit. Bitte wählen Sie eine andere Uhrzeit.');
+        return;
+      }
 
-      const captcha = getCaptchaToken(bookingForm);
-      if (!captcha) {
+      // Validate ALL customer fields before moving to step 5.
+      if (!name.value.trim()) {
+        name.setCustomValidity('Bitte geben Sie Ihren Namen ein.');
+        name.reportValidity();
+        name.setCustomValidity('');
+        return;
+      }
+      if (!phone.value.trim()) {
+        phone.setCustomValidity('Bitte geben Sie Ihre Telefonnummer ein.');
+        phone.reportValidity();
+        phone.setCustomValidity('');
+        return;
+      }
+      if (!email.value.trim()) {
+        email.setCustomValidity('Bitte geben Sie Ihre E-Mail-Adresse ein.');
+        email.reportValidity();
+        email.setCustomValidity('');
+        return;
+      }
+      if (!email.checkValidity()) {
+        email.reportValidity();
+        return;
+      }
+      if (!privacy.checked) {
+        privacy.setCustomValidity('Bitte stimmen Sie der Kontaktaufnahme zu.');
+        privacy.reportValidity();
+        privacy.setCustomValidity('');
+        return;
+      }
+      if (!bookingCaptchaSolvedState) {
         showToast('hCaptcha fehlt','Bitte lösen Sie zuerst die hCaptcha-Prüfung.');
         return;
       }
@@ -466,15 +654,18 @@
       document.getElementById('summaryStaff').textContent = bookingState.staff;
       document.getElementById('summaryDate').textContent = date;
       document.getElementById('summaryTime').textContent = `${bookingState.time} Uhr`;
-      document.getElementById('summaryContact').textContent = document.getElementById('bookingName').value;
+      document.getElementById('summaryContact').textContent = `${name.value.trim()} · ${email.value.trim()} · ${phone.value.trim()}`;
 
-      // The CAPTCHA is only used to demonstrate the anti-spam step.
-      // No Web3Forms request is made from this demo booking widget.
       showBookingStep(5);
       showToast('Demo abgeschlossen','So würde die Terminbestätigung nach der Buchung aussehen.');
     });
 
     document.getElementById('restartBooking').addEventListener('click', resetBooking);
+
+    // Keep today's available times up to date while the page is open.
+    setInterval(() => {
+      if (bookingState.date === getTodayISO()) refreshTimeButtons();
+    }, 30000);
 
     const leadForm = document.getElementById('leadForm');
     const submitButton = document.getElementById('submitButton');
@@ -487,8 +678,7 @@
         showToast('Web3Forms noch nicht eingerichtet','Bitte zuerst den Web3Forms Access Key im HTML eintragen.');
         return;
       }
-      const captcha = getCaptchaToken(leadForm);
-      if (!captcha) {
+      if (!leadCaptchaSolvedState) {
         showToast('hCaptcha fehlt','Bitte lösen Sie zuerst die hCaptcha-Prüfung.');
         return;
       }
