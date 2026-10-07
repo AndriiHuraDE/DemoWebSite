@@ -243,7 +243,7 @@
               <div><label for="bookingPhone" class="block text-xs uppercase tracking-widest text-muted mb-2">Telefon</label><input id="bookingPhone" type="tel" name="phone" placeholder="Ihre Telefonnummer" required class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold"></div>
             </div>
             <div class="mt-5"><label for="bookingEmail" class="block text-xs uppercase tracking-widest text-muted mb-2">E-Mail</label><input id="bookingEmail" type="email" name="email" placeholder="Ihre E-Mail-Adresse" required class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold"></div>
-            <div class="mt-6 rounded-lg border border-black/10 bg-ivory p-5"><div class="text-xs uppercase tracking-widest text-muted mb-3">Spam-Schutz</div><div id="bookingCaptcha" class="h-captcha" data-sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2" data-theme="light" data-lang="de" data-callback="bookingCaptchaSolved" data-expired-callback="bookingCaptchaExpired" data-error-callback="bookingCaptchaError"></div><p class="text-[11px] text-muted mt-2">Bitte bestätigen Sie, dass Sie kein Bot sind.</p></div>
+            <div class="mt-6 rounded-lg border border-black/10 bg-ivory p-5"><div class="text-xs uppercase tracking-widest text-muted mb-3">Spam-Schutz</div><div id="bookingCaptcha" class="h-captcha" data-captcha="true" data-lang="de" data-theme="light"></div><p class="text-[11px] text-muted mt-2">Bitte bestätigen Sie, dass Sie kein Bot sind.</p></div>
             <div class="mt-5"><label for="bookingPrivacy" class="flex items-start gap-3 cursor-pointer"><input id="bookingPrivacy" type="checkbox" name="privacy" required class="mt-1 w-5 h-5 shrink-0 accent-[#B79A65]"><span class="text-xs text-muted leading-5">Ich willige in die Verarbeitung meiner Angaben zur Terminvereinbarung ein und habe die <a href="datenschutz.html" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-charcoal">Datenschutzerklärung</a> gelesen.</span></label></div>
             <div class="grid grid-cols-2 gap-3 mt-7"><button type="button" id="backToStep3" class="min-h-[52px] border border-black/15 font-semibold text-sm hover:bg-ivory transition">Zurück</button><button type="button" id="bookingSubmit" class="min-h-[52px] bg-charcoal text-white font-semibold text-sm hover:bg-black transition">Termin bestätigen</button></div>
           </div>
@@ -301,7 +301,7 @@
           </div>
           <div><label for="preferred_time" class="block text-xs uppercase tracking-widest text-white/60 mb-2">Bevorzugtes Datum</label><input id="preferred_time" type="date" name="preferred_date" min="" max="2099-12-31" inputmode="numeric" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white outline-none focus:border-gold"></div>
           <p id="leadDateError" class="hidden text-xs text-red-300 -mt-2">Bitte verwenden Sie ein gültiges Datum mit genau 4-stelliger Jahreszahl.</p>
-          <div class="pt-2"><div class="text-xs uppercase tracking-widest text-white/60 mb-3">Spam-Schutz</div><div id="leadCaptcha" class="h-captcha" data-sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2" data-theme="light" data-lang="de" data-callback="leadCaptchaSolved" data-expired-callback="leadCaptchaExpired" data-error-callback="leadCaptchaError"></div></div>
+          <div class="pt-2"><div class="text-xs uppercase tracking-widest text-white/60 mb-3">Spam-Schutz</div><div id="leadCaptcha" class="h-captcha" data-captcha="true" data-lang="de" data-theme="light"></div></div>
           <div><label for="privacy" class="flex items-start gap-3 cursor-pointer"><input type="checkbox" name="privacy" id="privacy" required class="mt-1 w-5 h-5 shrink-0 accent-[#B79A65]"><span class="text-xs text-white/60 leading-5">Ich willige in die Verarbeitung meiner Angaben zur Kontaktaufnahme ein und habe die <a href="datenschutz.html" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-white">Datenschutzerklärung</a> gelesen.</span></label></div>
           <button id="submitButton" type="submit" class="w-full sm:w-auto sm:min-w-[280px] sm:mx-auto sm:flex min-h-[54px] items-center justify-center bg-white text-charcoal px-7 font-semibold text-sm hover:bg-gold hover:text-white transition">Kostenlosen Demo-Termin anfragen</button>
           <p class="text-[11px] text-white/35 text-center leading-5">Ihre Daten werden ausschließlich zur Kontaktaufnahme bezüglich dieser Anfrage verwendet. <a href="datenschutz.html" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-white">Datenschutz lesen</a></p>
@@ -561,15 +561,10 @@
 
     document.getElementById('backToStep3').addEventListener('click', () => showBookingStep(3));
 
-    let bookingCaptchaSolvedState = false;
-    let leadCaptchaSolvedState = false;
-
-    window.bookingCaptchaSolved = function () { bookingCaptchaSolvedState = true; };
-    window.bookingCaptchaExpired = function () { bookingCaptchaSolvedState = false; };
-    window.bookingCaptchaError = function () { bookingCaptchaSolvedState = false; };
-    window.leadCaptchaSolved = function () { leadCaptchaSolvedState = true; };
-    window.leadCaptchaExpired = function () { leadCaptchaSolvedState = false; };
-    window.leadCaptchaError = function () { leadCaptchaSolvedState = false; };
+    function getCaptchaToken(form) {
+      const field = form.querySelector('textarea[name="h-captcha-response"]');
+      return field ? String(field.value || '').trim() : '';
+    }
 
     function resetBooking() {
       bookingState.service='';
@@ -577,7 +572,6 @@
       bookingState.staff='';
       bookingState.date='';
       bookingState.time='';
-      bookingCaptchaSolvedState = false;
 
       document.querySelectorAll('.booking-option,.time-option').forEach(x => x.classList.remove('selected'));
       document.getElementById('nextToStep2').disabled = true;
@@ -651,7 +645,7 @@
         privacy.setCustomValidity('');
         return;
       }
-      if (!bookingCaptchaSolvedState) {
+      if (!getCaptchaToken(bookingForm)) {
         showToast('hCaptcha fehlt','Bitte lösen Sie zuerst die hCaptcha-Prüfung.');
         return;
       }
@@ -686,7 +680,7 @@
         showToast('Web3Forms noch nicht eingerichtet','Bitte tragen Sie den Web3Forms Access Key einmal in config.js ein.');
         return;
       }
-      if (!leadCaptchaSolvedState) {
+      if (!getCaptchaToken(leadForm)) {
         showToast('hCaptcha fehlt','Bitte lösen Sie zuerst die hCaptcha-Prüfung.');
         return;
       }
@@ -737,7 +731,7 @@
   </script>
 
   <!-- hCaptcha: official Web3Forms free-plan sitekey / manual setup -->
-  <script src="https://js.hcaptcha.com/1/api.js?hl=de" async defer></script>
+  <script src="https://web3forms.com/client/script.js" async defer></script>
 
   <!-- Schema.org example -->
   <script type="application/ld+json">
