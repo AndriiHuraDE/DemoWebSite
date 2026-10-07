@@ -7,6 +7,7 @@
   <meta name="description" content="Premium Hair Salon Website Demo in Münster mit Online-Terminbuchung und WhatsApp." />
 
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="config.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -175,7 +176,7 @@
       <div class="text-center mb-10"><div class="flex items-center justify-center gap-4 mb-5"><div class="gold-line"></div><span class="text-xs tracking-[.25em] uppercase text-muted">Online Termin</span><div class="gold-line"></div></div><h2 class="text-4xl sm:text-5xl mb-4">Ihren Termin auswählen</h2><p class="text-muted">Diese Buchungsmaske ist eine Website-Demo.</p></div>
 
       <form id="bookingSubmitForm" action="https://api.web3forms.com/submit" method="POST" class="bg-white border border-black/10 shadow-luxury">
-        <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY">
+        <input type="hidden" name="access_key" value="">
         <input type="hidden" name="subject" value="Neue Salon-Termin-Demo – pimentaGROUP Web Concierge">
         <input type="hidden" name="from_name" value="pimentaGROUP Web Concierge Demo Booking">
         <input type="hidden" name="source" value="Salon Demo Terminbuchung">
@@ -285,7 +286,7 @@
         </div>
 
         <form id="leadForm" action="https://api.web3forms.com/submit" method="POST" class="space-y-5">
-          <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY">
+          <input type="hidden" name="access_key" value="">
           <input type="hidden" name="subject" value="Neue Demo-Anfrage – pimentaGROUP Web Concierge">
           <input type="hidden" name="from_name" value="pimentaGROUP Web Concierge">
           <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off">
@@ -347,6 +348,12 @@
     document.getElementById('whatsappHero').addEventListener('click', () => showToast('WhatsApp-Buchung','In der echten Website wird hier direkt der WhatsApp-Chat des Salons geöffnet.'));
 
     const bookingState = { service:'', price:'', staff:'', date:'', time:'' };
+
+    // Web3Forms Access Key is stored once in config.js and reused by every form.
+    const WEB3_ACCESS_KEY = String(window.WEB3FORMS_ACCESS_KEY || '').trim();
+    document.querySelectorAll('input[name=\"access_key\"]').forEach(input => {
+      input.value = WEB3_ACCESS_KEY;
+    });
     const bookingForm = document.getElementById('bookingSubmitForm');
     const bookingDate = document.getElementById('bookingDate');
     const bookingDateError = document.getElementById('bookingDateError');
@@ -675,8 +682,8 @@
     leadForm.addEventListener('submit', async event => {
       event.preventDefault();
       if (!leadForm.reportValidity() || !validateLeadDate()) return;
-      if (leadForm.querySelector('input[name="access_key"]').value === 'YOUR_WEB3FORMS_ACCESS_KEY') {
-        showToast('Web3Forms noch nicht eingerichtet','Bitte zuerst den Web3Forms Access Key im HTML eintragen.');
+      if (!WEB3_ACCESS_KEY) {
+        showToast('Web3Forms noch nicht eingerichtet','Bitte tragen Sie den Web3Forms Access Key einmal in config.js ein.');
         return;
       }
       if (!leadCaptchaSolvedState) {
