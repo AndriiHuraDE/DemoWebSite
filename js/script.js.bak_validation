@@ -8,27 +8,6 @@ const menuButton = document.getElementById('menuButton');
 
 
 
-    // Back-to-top button: visible after a small amount of scrolling.
-    const backToTop = document.getElementById('backToTop');
-
-    function updateBackToTop() {
-
-      const visible = window.scrollY > 300;
-
-      backToTop.classList.toggle('show', visible);
-      backToTop.setAttribute('aria-hidden', visible ? 'false' : 'true');
-
-    }
-
-    window.addEventListener('scroll', updateBackToTop, { passive: true });
-    updateBackToTop();
-
-    backToTop.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-
-
     function showToast(title, text) {
 
       const toast = document.getElementById('toast');
@@ -366,100 +345,6 @@ const menuButton = document.getElementById('menuButton');
     leadDate.addEventListener('change', validateLeadDate);
 
 
-    // Kontaktfelder: Telefon nur Ziffern, Name nur lateinische Schrift, mindestens 3 Buchstaben.
-    const LATIN_NAME_RE = /^[\p{Script=Latin}\s'’-]+$/u;
-    const LATIN_LETTER_RE = /\p{Script=Latin}/u;
-
-    function validateNameField(input) {
-
-      const value = input.value.trim();
-      let message = '';
-
-      if (!value) {
-
-        if (input.required) message = 'Bitte geben Sie Ihren Namen ein.';
-
-      } else if (value.length < 3) {
-
-        message = 'Der Name muss mindestens 3 Zeichen lang sein.';
-
-      } else if (!LATIN_NAME_RE.test(value)) {
-
-        message = 'Bitte verwenden Sie nur lateinische Buchstaben. Leerzeichen, Bindestrich und Apostroph sind erlaubt.';
-
-      } else {
-
-        const letters = Array.from(value).filter(char => LATIN_LETTER_RE.test(char));
-
-        if (letters.length < 3) message = 'Der Name muss mindestens 3 Buchstaben enthalten.';
-
-      }
-
-      input.setCustomValidity(message);
-      return !message;
-    }
-
-
-
-    function sanitizePhoneValue(value) {
-
-      const raw = String(value || '');
-      const hasLeadingPlus = raw.trimStart().startsWith('+');
-      const digits = raw.replace(/\D/g, '');
-
-      return hasLeadingPlus ? `+${digits}` : digits;
-    }
-
-
-
-    function validatePhoneField(input) {
-
-      const value = input.value.trim();
-      let message = '';
-
-      if (!value) {
-
-        if (input.required) message = 'Bitte geben Sie Ihre Telefonnummer ein.';
-
-      } else if (!/^\+?[0-9]+$/.test(value)) {
-
-        message = 'Bitte verwenden Sie nur Ziffern und optional ein Pluszeichen am Anfang (z. B. +49123456789).';
-
-      }
-
-      input.setCustomValidity(message);
-      return !message;
-    }
-
-
-
-    const contactValidationFields = [
-
-      { name: document.getElementById('bookingName'), phone: document.getElementById('bookingPhone') },
-
-      { name: document.getElementById('name'), phone: document.getElementById('phone') }
-
-    ];
-
-
-
-    contactValidationFields.forEach(({ name, phone }) => {
-
-      name.addEventListener('input', () => validateNameField(name));
-      name.addEventListener('blur', () => validateNameField(name));
-
-      phone.addEventListener('input', () => {
-
-        phone.value = sanitizePhoneValue(phone.value);
-        validatePhoneField(phone);
-
-      });
-
-      phone.addEventListener('blur', () => validatePhoneField(phone));
-
-    });
-
-
 
     document.querySelectorAll('[data-service]').forEach(button => button.addEventListener('click', () => {
 
@@ -693,17 +578,25 @@ const menuButton = document.getElementById('menuButton');
 
       // Validate ALL customer fields before moving to step 5.
 
-      if (!validateNameField(name)) {
+      if (!name.value.trim()) {
+
+        name.setCustomValidity('Bitte geben Sie Ihren Namen ein.');
 
         name.reportValidity();
+
+        name.setCustomValidity('');
 
         return;
 
       }
 
-      if (!validatePhoneField(phone)) {
+      if (!phone.value.trim()) {
+
+        phone.setCustomValidity('Bitte geben Sie Ihre Telefonnummer ein.');
 
         phone.reportValidity();
+
+        phone.setCustomValidity('');
 
         return;
 
@@ -800,19 +693,6 @@ const menuButton = document.getElementById('menuButton');
     leadForm.addEventListener('submit', async event => {
 
       event.preventDefault();
-
-      const leadName = document.getElementById('name');
-      const leadPhone = document.getElementById('phone');
-
-      if (!validateNameField(leadName)) {
-        leadName.reportValidity();
-        return;
-      }
-
-      if (!validatePhoneField(leadPhone)) {
-        leadPhone.reportValidity();
-        return;
-      }
 
       if (!leadForm.reportValidity() || !validateLeadDate()) return;
 
