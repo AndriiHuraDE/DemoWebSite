@@ -461,18 +461,56 @@ const menuButton = document.getElementById('menuButton');
     }
 
 
+    function validateEmailField(input) {
+
+      const value = input.value.trim();
+      let message = '';
+
+      if (!value) {
+
+        if (input.required) message = 'Bitte geben Sie Ihre E-Mail-Adresse ein.';
+
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+
+        message = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
+
+      }
+
+      setFieldError(input, message);
+      return !message;
+    }
+
+
+
+    function validateCheckboxField(input, message) {
+
+      const error = document.getElementById(`${input.id}Error`);
+      const valid = input.checked;
+
+      input.setAttribute('aria-invalid', valid ? 'false' : 'true');
+      input.setCustomValidity(valid ? '' : message);
+
+      if (error) {
+        error.textContent = valid ? '' : message;
+        error.classList.toggle('hidden', valid);
+      }
+
+      return valid;
+    }
+
+
 
     const contactValidationFields = [
 
-      { name: document.getElementById('bookingName'), phone: document.getElementById('bookingPhone') },
+      { name: document.getElementById('bookingName'), phone: document.getElementById('bookingPhone'), email: document.getElementById('bookingEmail'), privacy: document.getElementById('bookingPrivacy') },
 
-      { name: document.getElementById('name'), phone: document.getElementById('phone') }
+      { name: document.getElementById('name'), phone: document.getElementById('phone'), email: document.getElementById('email'), privacy: document.getElementById('privacy') }
 
     ];
 
 
 
-    contactValidationFields.forEach(({ name, phone }) => {
+    contactValidationFields.forEach(({ name, phone, email, privacy }) => {
 
       name.addEventListener('input', () => validateNameField(name));
       name.addEventListener('blur', () => validateNameField(name));
@@ -485,6 +523,15 @@ const menuButton = document.getElementById('menuButton');
       });
 
       phone.addEventListener('blur', () => validatePhoneField(phone));
+
+      email.addEventListener('blur', () => validateEmailField(email));
+      email.addEventListener('input', () => {
+        if (email.getAttribute('aria-invalid') === 'true') validateEmailField(email);
+      });
+
+      privacy.addEventListener('change', () => {
+        if (privacy.checked) validateCheckboxField(privacy, 'Bitte stimmen Sie der Verarbeitung Ihrer Angaben zu.');
+      });
 
     });
 
@@ -740,34 +787,16 @@ const menuButton = document.getElementById('menuButton');
 
       }
 
-      if (!email.value.trim()) {
+      if (!validateEmailField(email)) {
 
-        email.setCustomValidity('Bitte geben Sie Ihre E-Mail-Adresse ein.');
-
-        email.reportValidity();
-
-        email.setCustomValidity('');
-
+        focusFieldWithError(email, email.validationMessage);
         return;
 
       }
 
-      if (!email.checkValidity()) {
+      if (!validateCheckboxField(privacy, 'Bitte stimmen Sie der Verarbeitung Ihrer Angaben zu.')) {
 
-        email.reportValidity();
-
-        return;
-
-      }
-
-      if (!privacy.checked) {
-
-        privacy.setCustomValidity('Bitte stimmen Sie der Kontaktaufnahme zu.');
-
-        privacy.reportValidity();
-
-        privacy.setCustomValidity('');
-
+        focusFieldWithError(privacy, privacy.validationMessage);
         return;
 
       }
@@ -847,7 +876,20 @@ const menuButton = document.getElementById('menuButton');
         return;
       }
 
-      if (!leadForm.reportValidity() || !validateLeadDate()) return;
+      const leadEmail = document.getElementById('email');
+      const leadPrivacy = document.getElementById('privacy');
+
+      if (!validateEmailField(leadEmail)) {
+        focusFieldWithError(leadEmail, leadEmail.validationMessage);
+        return;
+      }
+
+      if (!validateCheckboxField(leadPrivacy, 'Bitte stimmen Sie der Verarbeitung Ihrer Angaben zu.')) {
+        focusFieldWithError(leadPrivacy, leadPrivacy.validationMessage);
+        return;
+      }
+
+      if (!validateLeadDate()) return;
 
       if (!WEB3_ACCESS_KEY) {
 

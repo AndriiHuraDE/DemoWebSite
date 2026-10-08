@@ -260,7 +260,7 @@
 
 
 
-      <form id="bookingSubmitForm" action="https://api.web3forms.com/submit" method="POST" class="bg-white border border-black/10 shadow-luxury">
+      <form id="bookingSubmitForm" action="https://api.web3forms.com/submit" method="POST" novalidate class="bg-white border border-black/10 shadow-luxury">
 
         <input type="hidden" name="access_key" value="">
 
@@ -394,11 +394,11 @@
 
             </div>
 
-            <div class="mt-5"><label for="bookingEmail" class="block text-xs uppercase tracking-widest text-muted mb-2">E-Mail</label><input id="bookingEmail" type="email" name="email" placeholder="Ihre E-Mail-Adresse" required class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold"></div>
+            <div class="mt-5"><label for="bookingEmail" class="block text-xs uppercase tracking-widest text-muted mb-2">E-Mail</label><input id="bookingEmail" type="email" name="email" placeholder="Ihre E-Mail-Adresse" required aria-describedby="bookingEmailError" class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold"><p id="bookingEmailError" class="field-error hidden" aria-live="polite"></p></div>
 
             <div class="mt-6 rounded-lg border border-black/10 bg-ivory p-5"><div class="text-xs uppercase tracking-widest text-muted mb-3">Spam-Schutz</div><div id="bookingCaptcha" class="h-captcha" data-captcha="true" data-lang="de" data-theme="light"></div><p class="text-[11px] text-muted mt-2">Bitte bestätigen Sie, dass Sie kein Bot sind.</p></div>
 
-            <div class="mt-5"><label for="bookingPrivacy" class="flex items-start gap-3 cursor-pointer"><input id="bookingPrivacy" type="checkbox" name="privacy" required class="mt-1 w-5 h-5 shrink-0 accent-[#B79A65]"><span class="text-xs text-muted leading-5">Ich willige in die Verarbeitung meiner Angaben zur Terminvereinbarung ein und habe die <a href="datenschutz.html" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-charcoal">Datenschutzerklärung</a> gelesen.</span></label></div>
+            <div class="mt-5"><label for="bookingPrivacy" class="flex items-start gap-3 cursor-pointer"><input id="bookingPrivacy" type="checkbox" name="privacy" required aria-describedby="bookingPrivacyError" class="mt-1 w-5 h-5 shrink-0 accent-[#B79A65]"><span class="text-xs text-muted leading-5">Ich willige in die Verarbeitung meiner Angaben zur Terminvereinbarung ein und habe die <a href="datenschutz.html" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-charcoal">Datenschutzerklärung</a> gelesen.</span></label><p id="bookingPrivacyError" class="field-error hidden" aria-live="polite"></p></div>
 
             <div class="grid grid-cols-2 gap-3 mt-7"><button type="button" id="backToStep3" class="min-h-[52px] border border-black/15 font-semibold text-sm hover:bg-ivory transition">Zurück</button><button type="button" id="bookingSubmit" class="min-h-[52px] bg-charcoal text-white font-semibold text-sm hover:bg-black transition">Termin bestätigen</button></div>
 
@@ -480,7 +480,7 @@
 
 
 
-        <form id="leadForm" action="https://api.web3forms.com/submit" method="POST" class="space-y-5">
+        <form id="leadForm" action="https://api.web3forms.com/submit" method="POST" novalidate class="space-y-5">
 
           <input type="hidden" name="access_key" value="">
 
@@ -502,7 +502,7 @@
 
           <div class="grid sm:grid-cols-2 gap-5">
 
-            <div><label for="email" class="block text-xs uppercase tracking-widest text-white/60 mb-2">E-Mail</label><input id="email" type="email" name="email" placeholder="Ihre E-Mail-Adresse" required autocomplete="email" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white placeholder:text-white/35 outline-none focus:border-gold"></div>
+            <div><label for="email" class="block text-xs uppercase tracking-widest text-white/60 mb-2">E-Mail</label><input id="email" type="email" name="email" placeholder="Ihre E-Mail-Adresse" required autocomplete="email" aria-describedby="emailError" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white placeholder:text-white/35 outline-none focus:border-gold"><p id="emailError" class="field-error field-error-dark hidden" aria-live="polite"></p></div>
 
             <div><label for="phone" class="block text-xs uppercase tracking-widest text-white/60 mb-2">Telefon</label><input id="phone" type="tel" name="phone" placeholder="Telefonnummer für Rückruf" required inputmode="tel" pattern="\+?[0-9]+" title="Bitte verwenden Sie nur Ziffern und optional ein Pluszeichen am Anfang (z. B. +49123456789)." autocomplete="tel" aria-describedby="phoneError" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white placeholder:text-white/35 outline-none focus:border-gold"><p id="phoneError" class="field-error field-error-dark hidden" aria-live="polite"></p></div>
 
@@ -514,7 +514,7 @@
 
           <div class="pt-2"><div class="text-xs uppercase tracking-widest text-white/60 mb-3">Spam-Schutz</div><div id="leadCaptcha" class="h-captcha" data-captcha="true" data-lang="de" data-theme="light"></div></div>
 
-          <div><label for="privacy" class="flex items-start gap-3 cursor-pointer"><input type="checkbox" name="privacy" id="privacy" required class="mt-1 w-5 h-5 shrink-0 accent-[#B79A65]"><span class="text-xs text-white/60 leading-5">Ich willige in die Verarbeitung meiner Angaben zur Kontaktaufnahme ein und habe die <a href="datenschutz.html" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-white">Datenschutzerklärung</a> gelesen.</span></label></div>
+          <div><label for="privacy" class="flex items-start gap-3 cursor-pointer"><input type="checkbox" name="privacy" id="privacy" required aria-describedby="privacyError" class="mt-1 w-5 h-5 shrink-0 accent-[#B79A65]"><span class="text-xs text-white/60 leading-5">Ich willige in die Verarbeitung meiner Angaben zur Kontaktaufnahme ein und habe die <a href="datenschutz.html" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-white">Datenschutzerklärung</a> gelesen.</span></label><p id="privacyError" class="field-error field-error-dark hidden" aria-live="polite"></p></div>
 
           <button id="submitButton" type="submit" class="w-full sm:w-auto sm:min-w-[280px] sm:mx-auto sm:flex min-h-[54px] items-center justify-center bg-white text-charcoal px-7 font-semibold text-sm hover:bg-gold hover:text-white transition">Kostenlosen Demo-Termin anfragen</button>
 
