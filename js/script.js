@@ -55,8 +55,428 @@ const menuButton = document.getElementById('menuButton');
 
 
 
-    document.getElementById('whatsappHero').addEventListener('click', () => showToast('WhatsApp-Buchung','In der echten Website wird hier direkt der WhatsApp-Chat des Salons geöffnet.'));
+    // ------------------------------------------------------------
+    // DEMO WHATSAPP CHAT
+    // ------------------------------------------------------------
+    const whatsappDemo = document.getElementById('whatsappDemo');
+    const whatsappClose = document.getElementById('whatsappClose');
+    const whatsappMessages = document.getElementById('whatsappMessages');
+    const whatsappQuickReplies = document.getElementById('whatsappQuickReplies');
+    const whatsappDemoForm = document.getElementById('whatsappDemoForm');
+    const whatsappInput = document.getElementById('whatsappInput');
 
+    const whatsappState = {
+      step: 'menu',
+      service: null,
+      staff: '',
+      date: '',
+      time: '',
+      processing: false
+    };
+
+    // Canonical service data. Numeric menu values are internal only;
+    // the chat always displays the full human-readable label.
+    const whatsappServices = {
+      '1': { name: 'Damen Haarschnitt', price: '49 €', label: 'Damen Haarschnitt – 49 €' },
+      '2': { name: 'Balayage', price: 'ab 129 €', label: 'Balayage – ab 129 €' },
+      '3': { name: 'Herren Styling', price: '35 €', label: 'Herren Styling – 35 €' },
+      '4': { name: 'Pflegebehandlung', price: '29 €', label: 'Pflegebehandlung – 29 €' }
+    };
+
+    // Beispielhafte Öffnungszeiten für die DEMO.
+    // 1 = Montag ... 5 = Freitag.
+    // Jeder Wochentag hat bewusst unterschiedliche Beispielzeiten.
+    const demoWeekSchedule = {
+      1: ['09:00', '11:30', '15:00', '17:30'],
+      2: ['10:00', '12:30', '14:00', '18:00'],
+      3: ['09:30', '13:00', '15:30'],
+      4: ['10:30', '12:00', '16:00', '17:30'],
+      5: ['09:00', '11:00', '14:30', '16:30']
+    };
+
+    function whatsappTime() {
+      return new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function addWhatsAppMessage(text, sender = 'bot') {
+      const bubble = document.createElement('div');
+      bubble.className = `wa-message ${sender}`;
+      bubble.textContent = text;
+
+      const time = document.createElement('span');
+      time.className = 'wa-time';
+      time.textContent = whatsappTime();
+
+      if (sender === 'user') {
+        const checks = document.createElement('span');
+        checks.className = 'wa-checks';
+        checks.textContent = '✓✓';
+        time.appendChild(checks);
+      }
+
+      bubble.appendChild(time);
+      whatsappMessages.appendChild(bubble);
+      requestAnimationFrame(() => {
+        whatsappMessages.scrollTop = whatsappMessages.scrollHeight;
+      });
+    }
+
+    function showWhatsAppTyping() {
+      const bubble = document.createElement('div');
+      bubble.className = 'wa-message bot wa-typing';
+      bubble.setAttribute('aria-label', 'SÉLYS schreibt');
+      bubble.innerHTML = '<span></span><span></span><span></span>';
+      whatsappMessages.appendChild(bubble);
+      requestAnimationFrame(() => {
+        whatsappMessages.scrollTop = whatsappMessages.scrollHeight;
+      });
+      return bubble;
+    }
+
+    function botReply(text, delay = 420) {
+      return new Promise(resolve => {
+        const typing = showWhatsAppTyping();
+        window.setTimeout(() => {
+          typing.remove();
+          addWhatsAppMessage(text, 'bot');
+          resolve();
+        }, delay);
+      });
+    }
+
+    function setWhatsAppQuickReplies(items) {
+      whatsappQuickReplies.innerHTML = '';
+      items.forEach(item => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'wa-quick';
+        button.textContent = item.label;
+
+        // Show the human-readable option in the chat instead of the internal
+        // machine value (e.g. ISO date / numeric menu value).
+        button.addEventListener('click', () => {
+          handleWhatsAppInput(item.value, item.userLabel || item.label);
+        });
+
+        whatsappQuickReplies.appendChild(button);
+      });
+    }
+
+    function formatDemoDate(date) {
+      return date.toLocaleDateString('de-DE', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long'
+      });
+    }
+
+    function toISODate(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function getCurrentMinutes() {
+      const now = new Date();
+      return now.getHours() * 60 + now.getMinutes();
+    }
+
+    function timeToMinutes(time) {
+      const [hours, minutes] = time.split(':').map(Number);
+      return hours * 60 + minutes;
+    }
+
+    function getDemoDaysNext7Days() {
+      const now = new Date();
+      now.setSeconds(0, 0);
+
+      const today = new Date(now);
+      today.setHours(0, 0, 0, 0);
+
+      const todayMinutes = getCurrentMinutes();
+      const days = [];
+
+      // Today + the following 6 calendar days = exactly 7 calendar days.
+      for (let offset = 0; offset < 7; offset++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + offset);
+
+        const weekday = date.getDay(); // 0 Sun ... 6 Sat
+        if (weekday === 0 || weekday === 6) continue;
+
+        let times = [...(demoWeekSchedule[weekday] || [])];
+
+        // For today, never show a time that has already passed.
+        if (offset === 0) {
+          times = times.filter(time => timeToMinutes(time) > todayMinutes);
+        }
+
+        // If today has no remaining slots, it must not be offered at all.
+        if (!times.length) continue;
+
+        days.push({
+          date,
+          day: date.getDate(),
+          iso: toISODate(date),
+          weekday,
+          times,
+          label: formatDemoDate(date)
+        });
+      }
+
+      return days;
+    }
+
+    function getDemoWeekdays() {
+      return getDemoDaysNext7Days();
+    }
+
+    function findDemoDay(value) {
+      const days = getDemoWeekdays();
+      const normalized = value.toLowerCase();
+      return days.find(day =>
+        value === day.iso ||
+        value === String(day.day) ||
+        normalized.includes(day.label.toLowerCase()) ||
+        normalized.includes(day.label.split(' ')[0].toLowerCase())
+      );
+    }
+
+    function whatsappMenu() {
+      whatsappState.step = 'menu';
+      setWhatsAppQuickReplies([
+        { label: 'Termin buchen', value: '1' },
+        { label: 'Preise', value: '2' },
+        { label: 'Öffnungszeiten', value: '3' },
+        { label: 'Kontakt', value: '4' }
+      ]);
+    }
+
+    function whatsappAskService() {
+      whatsappState.step = 'service';
+      setWhatsAppQuickReplies([
+        { label: 'Damen Haarschnitt – 49 €', value: '1' },
+        { label: 'Balayage – ab 129 €', value: '2' },
+        { label: 'Herren Styling – 35 €', value: '3' },
+        { label: 'Pflegebehandlung – 29 €', value: '4' }
+      ]);
+    }
+
+    async function whatsappAskStaff() {
+      whatsappState.step = 'staff';
+      setWhatsAppQuickReplies([
+        { label: 'Anna Müller', value: '1' },
+        { label: 'Lukas Schneider', value: '2' },
+        { label: 'Sophie Weber', value: '3' },
+        { label: 'Keine Präferenz', value: '4' }
+      ]);
+    }
+
+    function whatsappAskDate() {
+      whatsappState.step = 'date';
+      const days = getDemoWeekdays();
+      setWhatsAppQuickReplies(days.map(day => ({
+        label: `${day.label} · ${day.times.length} frei`,
+        value: day.iso,
+        userLabel: day.label
+      })));
+    }
+
+    function whatsappAskTime(day) {
+      whatsappState.step = 'time';
+      setWhatsAppQuickReplies([
+        ...day.times.map(time => ({ label: time, value: time, userLabel: time })),
+        { label: '← Anderen Tag wählen', value: 'back-date', userLabel: '← Anderen Tag wählen' }
+      ]);
+    }
+
+    function resetWhatsAppDemo() {
+      whatsappState.step = 'menu';
+      whatsappState.service = null;
+      whatsappState.staff = '';
+      whatsappState.date = '';
+      whatsappState.time = '';
+      whatsappState.processing = false;
+      whatsappMessages.innerHTML = '';
+      whatsappQuickReplies.innerHTML = '';
+      addWhatsAppMessage('Hallo 👋 Willkommen bei SÉLYS.');
+      addWhatsAppMessage('🤖 DEMO – interaktiver WhatsApp-Buchungsassistent.\nKeine echten Termine, keine echten Nachrichten – alles hier ist nur eine Simulation.');
+      addWhatsAppMessage('Wie können wir Ihnen helfen?\n\n1️⃣ Termin buchen\n2️⃣ Preise ansehen\n3️⃣ Öffnungszeiten\n4️⃣ Kontakt');
+      whatsappMenu();
+    }
+
+    async function handleWhatsAppInput(rawValue, displayValue = '') {
+      if (whatsappState.processing) return;
+
+      const value = String(rawValue || '').trim();
+      if (!value) return;
+
+      // Always show the complete human-readable choice in the chat.
+      // This prevents internal values (e.g. "1") or truncated labels
+      // from appearing in the user's message bubble.
+      let userMessage = String(displayValue || value).trim();
+
+      if (whatsappState.step === 'service') {
+        const selectedService = whatsappServices[value] || Object.values(whatsappServices).find(service => {
+          const normalized = value.toLowerCase();
+          return normalized === service.label.toLowerCase() || normalized === service.name.toLowerCase();
+        });
+        if (selectedService) userMessage = selectedService.label;
+      }
+
+      if (whatsappState.step === 'staff') {
+        const staffLabels = {
+          '1': 'Anna Müller',
+          '2': 'Lukas Schneider',
+          '3': 'Sophie Weber',
+          '4': 'Keine Präferenz'
+        };
+        if (staffLabels[value]) userMessage = staffLabels[value];
+      }
+
+      whatsappState.processing = true;
+      whatsappQuickReplies.innerHTML = '';
+      addWhatsAppMessage(userMessage, 'user');
+
+      try {
+        switch (whatsappState.step) {
+          case 'menu':
+            if (value === '1' || /termin/i.test(value)) {
+              await botReply('Sehr gerne. Welche Behandlung möchten Sie buchen?');
+              await botReply('Wählen Sie einfach eine der Optionen unten.');
+              whatsappAskService();
+            } else if (value === '2' || /preis/i.test(value)) {
+              await botReply('Unsere Beispielpreise:\n\nDamen Haarschnitt – 49 €\nBalayage – ab 129 €\nHerren Styling – 35 €\nPflegebehandlung – 29 €');
+              await botReply('Wie können wir Ihnen weiterhelfen?');
+              whatsappMenu();
+            } else if (value === '3' || /öffnungszeit/i.test(value)) {
+              await botReply('Beispiel-Öffnungszeiten:\nMo–Fr: 09:00–18:00 Uhr\nSa: 09:00–14:00 Uhr\nSo: geschlossen');
+              whatsappMenu();
+            } else if (value === '4' || /kontakt/i.test(value)) {
+              await botReply('SÉLYS Hair & Beauty\nMünster\nTelefon: +49 (0) 251 000 000\nE-Mail: hallo@selys-demo.de');
+              whatsappMenu();
+            } else {
+              await botReply('Bitte wählen Sie 1, 2, 3 oder 4 – oder nutzen Sie eine der Schaltflächen unten.');
+              whatsappMenu();
+            }
+            break;
+
+          case 'service': {
+            const selectedService = whatsappServices[value] || Object.values(whatsappServices).find(service => {
+              const normalized = value.toLowerCase();
+              return normalized === service.label.toLowerCase() || normalized === service.name.toLowerCase();
+            });
+
+            if (!selectedService) {
+              await botReply('Bitte wählen Sie eine der vier Behandlungen.');
+              whatsappAskService();
+              break;
+            }
+
+            // Keep the full human-readable service. The number is never
+            // used in the visible confirmation.
+            whatsappState.service = { ...selectedService };
+
+            await botReply(`Gute Wahl: ${selectedService.label}.`);
+            await botReply('Gibt es ein bevorzugtes Teammitglied? Sie können auch „Keine Präferenz“ auswählen.');
+            await whatsappAskStaff();
+            break;
+          }
+
+          case 'staff': {
+            const staff = {
+              '1': 'Anna Müller',
+              '2': 'Lukas Schneider',
+              '3': 'Sophie Weber',
+              '4': 'Keine Präferenz'
+            };
+            const chosen = staff[value] || Object.values(staff).find(name => value.toLowerCase().includes(name.toLowerCase()));
+            if (!chosen) {
+              await botReply('Bitte wählen Sie ein Teammitglied oder „Keine Präferenz“.');
+              whatsappAskStaff();
+              break;
+            }
+            whatsappState.staff = chosen;
+            await botReply(chosen === 'Keine Präferenz'
+              ? 'Alles klar – ohne bevorzugtes Teammitglied.'
+              : `Alles klar – ${chosen}.`);
+            await botReply('Welche Tage passen für Sie? Bitte wählen Sie einen verfügbaren Werktag in den nächsten 7 Tagen.');
+            whatsappAskDate();
+            break;
+          }
+
+          case 'date': {
+            const selectedDay = findDemoDay(value);
+            if (!selectedDay) {
+              await botReply('Bitte wählen Sie einen der angezeigten Werktage.');
+              whatsappAskDate();
+              break;
+            }
+            whatsappState.date = selectedDay;
+            await botReply(`Für ${selectedDay.label} stehen in unserer DEMO diese Beispielzeiten zur Verfügung:`);
+            whatsappAskTime(selectedDay);
+            break;
+          }
+
+          case 'time': {
+            if (value === 'back-date') {
+              whatsappState.time = '';
+              await botReply('Natürlich. Wählen Sie bitte einen anderen Tag.');
+              whatsappAskDate();
+              break;
+            }
+            if (!/^\d{2}:\d{2}$/.test(value) || !whatsappState.date.times.includes(value)) {
+              await botReply('Diese Uhrzeit steht für den gewählten Tag nicht zur Verfügung.');
+              whatsappAskTime(whatsappState.date);
+              break;
+            }
+            whatsappState.time = value;
+            const finalServiceLabel = whatsappState.service && whatsappState.service.label ? whatsappState.service.label : 'Gewählte Behandlung';
+            await botReply(`Perfekt. Ihre Beispielauswahl:\n\n${finalServiceLabel}\n${whatsappState.staff}\n${whatsappState.date.label}, ${whatsappState.time} Uhr`);
+            await botReply('✅ DEMO-Buchung vorbereitet.\n\nDies ist nur eine Simulation. Es wurde kein echter Termin gebucht und keine Nachricht an einen Salon gesendet.');
+            setWhatsAppQuickReplies([{ label: 'Neue Demo starten', value: 'restart' }]);
+            whatsappState.step = 'done';
+            break;
+          }
+
+          case 'done':
+            if (value.toLowerCase() === 'restart' || /neu/i.test(value)) {
+              resetWhatsAppDemo();
+            } else {
+              await botReply('Diese Demo ist abgeschlossen. Sie können unten eine neue Demo starten.');
+              setWhatsAppQuickReplies([{ label: 'Neue Demo starten', value: 'restart' }]);
+            }
+            break;
+        }
+      } finally {
+        whatsappState.processing = false;
+        whatsappInput.value = '';
+        whatsappInput.focus();
+      }
+    }
+
+    function openWhatsAppDemo() {
+      resetWhatsAppDemo();
+      whatsappDemo.classList.add('open');
+      whatsappDemo.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('overflow-hidden');
+      window.setTimeout(() => whatsappInput.focus(), 120);
+    }
+
+    function closeWhatsAppDemo() {
+      whatsappDemo.classList.remove('open');
+      whatsappDemo.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('overflow-hidden');
+    }
+
+    document.getElementById('whatsappHero').addEventListener('click', openWhatsAppDemo);
+    whatsappClose.addEventListener('click', closeWhatsAppDemo);
+    whatsappDemo.querySelector('.whatsapp-backdrop').addEventListener('click', closeWhatsAppDemo);
+    whatsappDemoForm.addEventListener('submit', event => {
+      event.preventDefault();
+      handleWhatsAppInput(whatsappInput.value);
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && whatsappDemo.classList.contains('open')) closeWhatsAppDemo();
+    });
 
 
     const bookingState = { service:'', price:'', staff:'', date:'', time:'' };

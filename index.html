@@ -286,7 +286,7 @@
 
           <div id="stepIndicator1" class="step active min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">01</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Service</span></div>
 
-          <div id="stepIndicator2" class="step min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">02</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Mitarbeiter</span></div>
+          <div id="stepIndicator2" class="step min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">02</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Teammitglied</span></div>
 
           <div id="stepIndicator3" class="step min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">03</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Termin</span></div>
 
@@ -424,7 +424,7 @@
 
                 <div class="flex justify-between py-2 border-b border-black/10"><span class="text-sm text-muted">Service</span><strong id="summaryService" class="text-sm"></strong></div>
 
-                <div class="flex justify-between py-2 border-b border-black/10"><span class="text-sm text-muted">Mitarbeiter</span><strong id="summaryStaff" class="text-sm"></strong></div>
+                <div class="flex justify-between py-2 border-b border-black/10"><span class="text-sm text-muted">Teammitglied</span><strong id="summaryStaff" class="text-sm"></strong></div>
 
                 <div class="flex justify-between py-2 border-b border-black/10"><span class="text-sm text-muted">Datum</span><strong id="summaryDate" class="text-sm"></strong></div>
 
@@ -544,7 +544,7 @@
 
       <div class="py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
 
-        <div class="text-center sm:text-left"><div class="font-serif text-xl tracking-wide">ÉLAN</div><div class="text-[8px] tracking-[.35em] uppercase text-white/40 mt-1">Hair & Beauty</div></div>
+        <div class="text-center sm:text-left"><div class="font-serif text-xl tracking-wide">SÉLYS</div><div class="text-[8px] tracking-[.35em] uppercase text-white/40 mt-1">Hair & Beauty</div></div>
 
         <div class="flex flex-wrap justify-center gap-x-6 gap-y-3 text-xs text-white/50"><a href="datenschutz.html" class="hover:text-white transition">Datenschutz</a><a href="impressum.html" class="hover:text-white transition">Impressum</a></div>
 
@@ -566,6 +566,50 @@
   </button>
 
   <div id="toast" class="toast fixed bottom-5 left-4 right-4 sm:left-auto sm:right-5 sm:max-w-sm z-[100]"><div class="bg-charcoal text-white shadow-luxury p-4 border border-white/10"><div class="flex gap-3 items-start"><div class="text-goldLight mt-0.5">✓</div><div><div id="toastTitle" class="font-semibold text-sm"></div><div id="toastText" class="text-xs text-white/60 mt-1"></div></div></div></div></div>
+
+  <!-- DEMO WHATSAPP -->
+  <div id="whatsappDemo" class="whatsapp-modal" aria-hidden="true">
+    <div class="whatsapp-backdrop" data-wa-close="true"></div>
+    <div class="whatsapp-shell" role="dialog" aria-modal="true" aria-labelledby="whatsappDemoTitle">
+      <div class="whatsapp-header">
+        <button type="button" id="whatsappClose" class="whatsapp-icon-btn" aria-label="WhatsApp-Demo schließen">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="whatsapp-avatar" aria-hidden="true">S</div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-2">
+            <div id="whatsappDemoTitle" class="font-semibold text-sm truncate">SÉLYS</div>
+            <span class="whatsapp-online-dot" aria-hidden="true"></span>
+          </div>
+          <div class="text-[11px] text-white/70">online · Demo-Buchungsassistent</div>
+        </div>
+        <div class="whatsapp-header-actions" aria-hidden="true">
+          <span class="whatsapp-header-action">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5 18.5 8.5A1.5 1.5 0 0 1 20.75 9.8v4.4a1.5 1.5 0 0 1-2.25 1.3L15 13.5M5.5 6.5h6A1.5 1.5 0 0 1 13 8v8a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 4 16V8A1.5 1.5 0 0 1 5.5 6.5Z"/></svg>
+          </span>
+          <span class="whatsapp-header-action">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M22 16.9v2a1.35 1.35 0 0 1-1.47 1.35 18.8 18.8 0 0 1-8.18-2.91 18.5 18.5 0 0 1-5.7-5.7 18.8 18.8 0 0 1-2.91-8.18A1.35 1.35 0 0 1 5.09 2.0h2a1.35 1.35 0 0 1 1.35 1.16c.08.62.23 1.22.44 1.8a1.35 1.35 0 0 1-.3 1.42L7.7 7.23a15.4 15.4 0 0 0 5.07 5.07l.85-.88a1.35 1.35 0 0 1 1.42-.3c.58.21 1.18.36 1.8.44A1.35 1.35 0 0 1 18 12.91v2Z"/></svg>
+          </span>
+          <span class="whatsapp-demo-badge">DEMO</span>
+        </div>
+      </div>
+
+      <div class="whatsapp-demo-notice">
+        <span>DEMO</span> Nur eine Simulation – kein echter WhatsApp-Chat und keine echte Terminbuchung.
+      </div>
+
+      <div id="whatsappMessages" class="whatsapp-messages" aria-live="polite"></div>
+
+      <div id="whatsappQuickReplies" class="whatsapp-quick-replies"></div>
+
+      <form id="whatsappDemoForm" class="whatsapp-inputbar">
+        <input id="whatsappInput" type="text" autocomplete="off" placeholder="Nachricht eingeben …" aria-label="Nachricht eingeben">
+        <button type="submit" aria-label="Nachricht senden">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </form>
+    </div>
+  </div>
 
 
 
@@ -589,7 +633,7 @@
 
     "@type":"HairSalon",
 
-    "name":"ÉLAN Hair & Beauty",
+    "name":"SÉLYS Hair & Beauty",
 
     "description":"Premium Hair Salon in Münster mit Haarschnitten, Colorationen, Balayage und Pflegebehandlungen.",
 
