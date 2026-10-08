@@ -370,6 +370,35 @@ const menuButton = document.getElementById('menuButton');
     const LATIN_NAME_RE = /^[\p{Script=Latin}\s'’-]+$/u;
     const LATIN_LETTER_RE = /\p{Script=Latin}/u;
 
+    function setFieldError(input, message) {
+
+      const error = document.getElementById(`${input.id}Error`);
+
+      input.setAttribute('aria-invalid', message ? 'true' : 'false');
+
+      if (error) {
+        error.textContent = message;
+        error.classList.toggle('hidden', !message);
+      }
+
+      input.setCustomValidity(message);
+    }
+
+
+
+    function focusFieldWithError(input, message) {
+
+      setFieldError(input, message);
+
+      input.focus({ preventScroll: true });
+
+      window.setTimeout(() => {
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 80);
+    }
+
+
+
     function validateNameField(input) {
 
       const value = input.value.trim();
@@ -395,7 +424,7 @@ const menuButton = document.getElementById('menuButton');
 
       }
 
-      input.setCustomValidity(message);
+      setFieldError(input, message);
       return !message;
     }
 
@@ -427,7 +456,7 @@ const menuButton = document.getElementById('menuButton');
 
       }
 
-      input.setCustomValidity(message);
+      setFieldError(input, message);
       return !message;
     }
 
@@ -695,7 +724,8 @@ const menuButton = document.getElementById('menuButton');
 
       if (!validateNameField(name)) {
 
-        name.reportValidity();
+        const message = name.validationMessage;
+        focusFieldWithError(name, message);
 
         return;
 
@@ -703,7 +733,8 @@ const menuButton = document.getElementById('menuButton');
 
       if (!validatePhoneField(phone)) {
 
-        phone.reportValidity();
+        const message = phone.validationMessage;
+        focusFieldWithError(phone, message);
 
         return;
 
@@ -805,12 +836,14 @@ const menuButton = document.getElementById('menuButton');
       const leadPhone = document.getElementById('phone');
 
       if (!validateNameField(leadName)) {
-        leadName.reportValidity();
+        const message = leadName.validationMessage;
+        focusFieldWithError(leadName, message);
         return;
       }
 
       if (!validatePhoneField(leadPhone)) {
-        leadPhone.reportValidity();
+        const message = leadPhone.validationMessage;
+        focusFieldWithError(leadPhone, message);
         return;
       }
 

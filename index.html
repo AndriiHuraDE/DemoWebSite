@@ -388,9 +388,9 @@
 
             <div class="grid sm:grid-cols-2 gap-5">
 
-              <div><label for="bookingName" class="block text-xs uppercase tracking-widest text-muted mb-2">Name</label><input id="bookingName" type="text" name="name" placeholder="Ihr Name" required minlength="3" autocomplete="name" inputmode="text" title="Mindestens 3 lateinische Buchstaben; Leerzeichen, Bindestrich und Apostroph sind erlaubt." class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold"></div>
+              <div><label for="bookingName" class="block text-xs uppercase tracking-widest text-muted mb-2">Name</label><input id="bookingName" type="text" name="name" placeholder="Ihr Name" required minlength="3" autocomplete="name" inputmode="text" title="Mindestens 3 lateinische Buchstaben; Leerzeichen, Bindestrich und Apostroph sind erlaubt." aria-describedby="bookingNameError" class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold"><p id="bookingNameError" class="field-error hidden" aria-live="polite"></p></div>
 
-              <div><label for="bookingPhone" class="block text-xs uppercase tracking-widest text-muted mb-2">Telefon</label><input id="bookingPhone" type="tel" name="phone" placeholder="Ihre Telefonnummer" required inputmode="tel" pattern="\+?[0-9]+" title="Bitte verwenden Sie nur Ziffern und optional ein Pluszeichen am Anfang (z. B. +49123456789)." autocomplete="tel" class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold"></div>
+              <div><label for="bookingPhone" class="block text-xs uppercase tracking-widest text-muted mb-2">Telefon</label><input id="bookingPhone" type="tel" name="phone" placeholder="Ihre Telefonnummer" required inputmode="tel" pattern="\+?[0-9]+" title="Bitte verwenden Sie nur Ziffern und optional ein Pluszeichen am Anfang (z. B. +49123456789)." autocomplete="tel" aria-describedby="bookingPhoneError" class="w-full min-h-[52px] border border-black/15 bg-white px-4 outline-none focus:border-gold"><p id="bookingPhoneError" class="field-error hidden" aria-live="polite"></p></div>
 
             </div>
 
@@ -494,7 +494,7 @@
 
           <div class="grid sm:grid-cols-2 gap-5">
 
-            <div><label for="name" class="block text-xs uppercase tracking-widest text-white/60 mb-2">Name</label><input id="name" type="text" name="name" placeholder="Ihr Name" required minlength="3" autocomplete="name" inputmode="text" title="Mindestens 3 lateinische Buchstaben; Leerzeichen, Bindestrich und Apostroph sind erlaubt." class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white placeholder:text-white/35 outline-none focus:border-gold"></div>
+            <div><label for="name" class="block text-xs uppercase tracking-widest text-white/60 mb-2">Name</label><input id="name" type="text" name="name" placeholder="Ihr Name" required minlength="3" autocomplete="name" inputmode="text" title="Mindestens 3 lateinische Buchstaben; Leerzeichen, Bindestrich und Apostroph sind erlaubt." aria-describedby="nameError" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white placeholder:text-white/35 outline-none focus:border-gold"><p id="nameError" class="field-error field-error-dark hidden" aria-live="polite"></p></div>
 
             <div><label for="salon_name" class="block text-xs uppercase tracking-widest text-white/60 mb-2">Salon Name</label><input id="salon_name" type="text" name="salon_name" placeholder="Name Ihres Salons" required autocomplete="organization" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white placeholder:text-white/35 outline-none focus:border-gold"></div>
 
@@ -504,7 +504,7 @@
 
             <div><label for="email" class="block text-xs uppercase tracking-widest text-white/60 mb-2">E-Mail</label><input id="email" type="email" name="email" placeholder="Ihre E-Mail-Adresse" required autocomplete="email" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white placeholder:text-white/35 outline-none focus:border-gold"></div>
 
-            <div><label for="phone" class="block text-xs uppercase tracking-widest text-white/60 mb-2">Telefon</label><input id="phone" type="tel" name="phone" placeholder="Telefonnummer für Rückruf" required inputmode="tel" pattern="\+?[0-9]+" title="Bitte verwenden Sie nur Ziffern und optional ein Pluszeichen am Anfang (z. B. +49123456789)." autocomplete="tel" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white placeholder:text-white/35 outline-none focus:border-gold"></div>
+            <div><label for="phone" class="block text-xs uppercase tracking-widest text-white/60 mb-2">Telefon</label><input id="phone" type="tel" name="phone" placeholder="Telefonnummer für Rückruf" required inputmode="tel" pattern="\+?[0-9]+" title="Bitte verwenden Sie nur Ziffern und optional ein Pluszeichen am Anfang (z. B. +49123456789)." autocomplete="tel" aria-describedby="phoneError" class="w-full min-h-[52px] bg-white/10 border border-white/15 px-4 text-white placeholder:text-white/35 outline-none focus:border-gold"><p id="phoneError" class="field-error field-error-dark hidden" aria-live="polite"></p></div>
 
           </div>
 

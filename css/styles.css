@@ -216,3 +216,19 @@ a {
     bottom: 1.25rem;
   }
 }
+
+/* Stable inline validation messages for mobile and desktop */
+.field-error {
+  margin-top: .45rem;
+  font-size: .75rem;
+  line-height: 1.35rem;
+  color: #B42318;
+}
+
+.field-error-dark {
+  color: #FCA5A5;
+}
+
+input[aria-invalid="true"] {
+  border-color: rgba(180, 35, 24, .55) !important;
+}
