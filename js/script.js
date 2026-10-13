@@ -64,6 +64,7 @@ const menuButton = document.getElementById('menuButton');
     const whatsappQuickReplies = document.getElementById('whatsappQuickReplies');
     const whatsappDemoForm = document.getElementById('whatsappDemoForm');
     const whatsappInput = document.getElementById('whatsappInput');
+    let whatsappOpener = null;
 
     const whatsappState = {
       step: 'menu',
@@ -87,11 +88,11 @@ const menuButton = document.getElementById('menuButton');
     // 1 = Montag ... 5 = Freitag.
     // Jeder Wochentag hat bewusst unterschiedliche Beispielzeiten.
     const demoWeekSchedule = {
-      1: ['09:00', '11:30', '15:00', '17:30'],
-      2: ['10:00', '12:30', '14:00', '18:00'],
-      3: ['09:30', '13:00', '15:30'],
-      4: ['10:30', '12:00', '16:00', '17:30'],
-      5: ['09:00', '11:00', '14:30', '16:30']
+      1: ['09:00', '12:00', '15:30'],
+      2: ['10:30', '14:00', '17:00'],
+      3: ['09:00', '14:00', '15:30'],
+      4: ['10:30', '12:00', '17:00'],
+      5: ['09:00', '10:30', '14:00', '17:00']
     };
 
     function whatsappTime() {
@@ -432,7 +433,7 @@ const menuButton = document.getElementById('menuButton');
             const finalServiceLabel = whatsappState.service && whatsappState.service.label ? whatsappState.service.label : 'Gewählte Behandlung';
             await botReply(`Perfekt. Ihre Beispielauswahl:\n\n${finalServiceLabel}\n${whatsappState.staff}\n${whatsappState.date.label}, ${whatsappState.time} Uhr`);
             await botReply('✅ DEMO-Buchung vorbereitet.\n\nDies ist nur eine Simulation. Es wurde kein echter Termin gebucht und keine Nachricht an einen Salon gesendet.');
-            setWhatsAppQuickReplies([{ label: 'Neue Demo starten', value: 'restart' }]);
+            setWhatsAppQuickReplies([{ label: 'Neue Demo starten', value: 'restart', userLabel: 'Neue Demo starten' }]);
             whatsappState.step = 'done';
             break;
           }
@@ -442,7 +443,7 @@ const menuButton = document.getElementById('menuButton');
               resetWhatsAppDemo();
             } else {
               await botReply('Diese Demo ist abgeschlossen. Sie können unten eine neue Demo starten.');
-              setWhatsAppQuickReplies([{ label: 'Neue Demo starten', value: 'restart' }]);
+              setWhatsAppQuickReplies([{ label: 'Neue Demo starten', value: 'restart', userLabel: 'Neue Demo starten' }]);
             }
             break;
         }
@@ -454,17 +455,22 @@ const menuButton = document.getElementById('menuButton');
     }
 
     function openWhatsAppDemo() {
+      whatsappOpener = document.activeElement;
       resetWhatsAppDemo();
       whatsappDemo.classList.add('open');
       whatsappDemo.setAttribute('aria-hidden', 'false');
       document.body.classList.add('overflow-hidden');
-      window.setTimeout(() => whatsappInput.focus(), 120);
+      window.setTimeout(() => {
+        // Avoid opening the mobile keyboard automatically over the demo chat.
+        if (window.matchMedia('(min-width: 768px)').matches) whatsappInput.focus();
+      }, 120);
     }
 
     function closeWhatsAppDemo() {
       whatsappDemo.classList.remove('open');
       whatsappDemo.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('overflow-hidden');
+      if (whatsappOpener && typeof whatsappOpener.focus === 'function') whatsappOpener.focus();
     }
 
     document.getElementById('whatsappHero').addEventListener('click', openWhatsAppDemo);
@@ -495,6 +501,9 @@ const menuButton = document.getElementById('menuButton');
     });
 
     const bookingForm = document.getElementById('bookingSubmitForm');
+
+    // This form is a demo only. Prevent every possible native/implicit submission.
+    bookingForm.addEventListener('submit', event => event.preventDefault());
 
     const bookingDate = document.getElementById('bookingDate');
 
@@ -542,16 +551,43 @@ const menuButton = document.getElementById('menuButton');
 
 
 
+    function getMaxBookingDateISO() {
+      const maxDate = new Date();
+      maxDate.setHours(0, 0, 0, 0);
+      maxDate.setDate(maxDate.getDate() + 6);
+      return toISODate(maxDate);
+    }
+
+
+
+    function isBookingDateAllowed(value) {
+      if (!isFourDigitYearValue(value)) return false;
+      const selected = new Date(`${value}T00:00:00`);
+      if (Number.isNaN(selected.getTime()) || toISODate(selected) !== value) return false;
+      const weekday = selected.getDay();
+      return value >= getTodayISO() && value <= getMaxBookingDateISO() && weekday !== 0 && weekday !== 6;
+    }
+
+
+
+    // Example availability differs by weekday; only these times are selectable.
+    const bookingDaySchedule = {
+      1: ['09:00', '12:00', '15:30'],
+      2: ['10:30', '14:00', '17:00'],
+      3: ['09:00', '14:00', '15:30'],
+      4: ['10:30', '12:00', '17:00'],
+      5: ['09:00', '10:30', '14:00', '17:00']
+    };
+
+
+
     function canVisitBookingStep(step) {
       if (step === 1) return true;
       if (step === 2) return Boolean(bookingState.service);
       if (step === 3) return Boolean(bookingState.service && bookingState.staff);
       if (step === 4) {
         const date = bookingState.date;
-        const validDate = Boolean(
-          date && bookingDate.value === date && isFourDigitYearValue(date) &&
-          date >= getTodayISO() && date <= '2099-12-31'
-        );
+        const validDate = Boolean(date && bookingDate.value === date && isBookingDateAllowed(date));
         const validTime = Boolean(bookingState.time && timeButtons.some(button => button.dataset.time === bookingState.time && !button.disabled));
         return Boolean(bookingState.service && bookingState.staff && validDate && validTime);
       }
@@ -614,7 +650,8 @@ const menuButton = document.getElementById('menuButton');
 
       bookingDate.min = today;
 
-      bookingDate.max = '2099-12-31';
+      // Booking demo offers only the next 7 calendar days (today + 6), weekdays only.
+      bookingDate.max = getMaxBookingDateISO();
 
       leadDate.min = today;
 
@@ -624,7 +661,7 @@ const menuButton = document.getElementById('menuButton');
 
 
 
-    function validateBookingDate() {
+    function validateBookingDate(showRequiredError = true) {
 
       const value = bookingDate.value;
 
@@ -640,7 +677,7 @@ const menuButton = document.getElementById('menuButton');
 
         valid = false;
 
-        message = 'Bitte wählen Sie ein Datum aus.';
+        message = showRequiredError ? 'Bitte wählen Sie ein Datum aus.' : '';
 
       } else if (!isFourDigitYearValue(value)) {
 
@@ -654,12 +691,21 @@ const menuButton = document.getElementById('menuButton');
 
         message = 'Ein Termin in der Vergangenheit kann nicht gebucht werden.';
 
-      } else if (value > '2099-12-31') {
+      } else if (value > getMaxBookingDateISO()) {
 
         valid = false;
 
-        message = 'Bitte wählen Sie ein gültiges Datum.';
+        message = 'Bitte wählen Sie einen Termin innerhalb der nächsten 7 Kalendertage.';
 
+      } else {
+        const selectedDate = new Date(`${value}T00:00:00`);
+        if (Number.isNaN(selectedDate.getTime()) || toISODate(selectedDate) !== value) {
+          valid = false;
+          message = 'Bitte wählen Sie ein gültiges Datum.';
+        } else if (selectedDate.getDay() === 0 || selectedDate.getDay() === 6) {
+          valid = false;
+          message = 'Demo-Termine sind von Montag bis Freitag verfügbar.';
+        }
       }
 
 
@@ -668,7 +714,7 @@ const menuButton = document.getElementById('menuButton');
 
       bookingDateError.textContent = message;
 
-      bookingDateError.classList.toggle('hidden', valid);
+      bookingDateError.classList.toggle('hidden', !message);
 
       return valid;
 
@@ -717,73 +763,59 @@ const menuButton = document.getElementById('menuButton');
 
 
     function refreshTimeButtons() {
-
       const selectedDate = bookingDate.value;
-
       const today = getTodayISO();
-
       const currentMinutes = getCurrentMinutes();
-
+      const dateAllowed = isBookingDateAllowed(selectedDate);
+      const selectedDateObject = dateAllowed ? new Date(`${selectedDate}T00:00:00`) : null;
+      const weekday = selectedDateObject ? selectedDateObject.getDay() : null;
+      const availableForDay = weekday ? (bookingDaySchedule[weekday] || []) : [];
       let anyAvailable = false;
 
-
-
       timeButtons.forEach(button => {
-
         const [hours, minutes] = button.dataset.time.split(':').map(Number);
-
         const timeMinutes = hours * 60 + minutes;
-
+        const isScheduledForDay = availableForDay.includes(button.dataset.time);
         const isPastToday = selectedDate === today && timeMinutes <= currentMinutes;
-
-        const shouldDisable = !selectedDate || selectedDate < today || isPastToday;
-
-
+        const shouldDisable = !dateAllowed || !isScheduledForDay || isPastToday;
 
         button.disabled = shouldDisable;
-
         button.setAttribute('aria-disabled', shouldDisable ? 'true' : 'false');
 
-
-
         if (shouldDisable) {
-
           button.classList.add('opacity-30', 'cursor-not-allowed', 'line-through');
-
           button.classList.remove('selected');
-
-          if (bookingState.time === button.dataset.time) bookingState.time = '';
-
+          if (bookingState.time === button.dataset.time) {
+            bookingState.time = '';
+            bookingState.confirmed = false;
+          }
         } else {
-
           anyAvailable = true;
-
           button.classList.remove('opacity-30', 'cursor-not-allowed', 'line-through');
-
         }
-
       });
 
-
-
-      if (selectedDate === today && !anyAvailable) {
-
-        showToast('Keine Zeiten mehr verfügbar', 'Für heute sind keine späteren Demo-Termine mehr verfügbar. Bitte wählen Sie ein anderes Datum.');
-
+      const hint = document.getElementById('bookingTimeHint');
+      if (hint) {
+        if (!selectedDate) {
+          hint.textContent = 'Bitte wählen Sie zuerst ein Datum. Die verfügbaren Zeiten variieren je Werktag.';
+        } else if (!dateAllowed) {
+          hint.textContent = 'Bitte wählen Sie einen Werktag innerhalb der nächsten 7 Kalendertage.';
+        } else if (!anyAvailable && selectedDate === today) {
+          hint.textContent = 'Für heute sind keine späteren Demo-Zeiten mehr verfügbar. Bitte wählen Sie einen anderen Werktag.';
+        } else {
+          hint.textContent = 'Die angezeigten Zeiten sind unverbindliche Demo-Verfügbarkeiten. Nicht verfügbare Zeiten sind deaktiviert.';
+        }
       }
-
-
 
       validateStep3();
       updateBookingStepIndicators(currentBookingStep);
-
     }
-
 
 
     function validateStep3() {
 
-      const validDate = validateBookingDate();
+      const validDate = validateBookingDate(Boolean(bookingDate.value));
 
       const validTime = !!bookingState.time && timeButtons.some(button => button.dataset.time === bookingState.time && !button.disabled);
 
@@ -970,6 +1002,16 @@ const menuButton = document.getElementById('menuButton');
 
 
 
+    function invalidateBookingConfirmation(input) {
+      if (!input || !input.id.startsWith('booking')) return;
+      if (bookingState.confirmed) {
+        bookingState.confirmed = false;
+        updateBookingStepIndicators(currentBookingStep);
+      }
+    }
+
+
+
     const contactValidationFields = [
 
       { name: document.getElementById('bookingName'), phone: document.getElementById('bookingPhone'), email: document.getElementById('bookingEmail'), privacy: document.getElementById('bookingPrivacy') },
@@ -982,11 +1024,12 @@ const menuButton = document.getElementById('menuButton');
 
     contactValidationFields.forEach(({ name, phone, email, privacy }) => {
 
-      name.addEventListener('input', () => validateNameField(name));
+      name.addEventListener('input', () => { invalidateBookingConfirmation(name); validateNameField(name); });
       name.addEventListener('blur', () => validateNameField(name));
 
       phone.addEventListener('input', () => {
 
+        invalidateBookingConfirmation(phone);
         phone.value = sanitizePhoneValue(phone.value);
         validatePhoneField(phone);
 
@@ -996,10 +1039,12 @@ const menuButton = document.getElementById('menuButton');
 
       email.addEventListener('blur', () => validateEmailField(email));
       email.addEventListener('input', () => {
+        invalidateBookingConfirmation(email);
         if (email.getAttribute('aria-invalid') === 'true') validateEmailField(email);
       });
 
       privacy.addEventListener('change', () => {
+        invalidateBookingConfirmation(privacy);
         if (privacy.checked) validateCheckboxField(privacy, 'Bitte stimmen Sie der Verarbeitung Ihrer Angaben zu.');
       });
 
@@ -1170,6 +1215,15 @@ const menuButton = document.getElementById('menuButton');
 
       setDateLimits();
 
+      // Reset custom validation states too; form.reset() does not clear JS-set errors.
+      ['bookingName', 'bookingPhone', 'bookingEmail', 'bookingPrivacy'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) setFieldError(input, '');
+      });
+      bookingDate.setCustomValidity('');
+      bookingDateError.textContent = '';
+      bookingDateError.classList.add('hidden');
+
 
 
       document.getElementById('summaryService').textContent='';
@@ -1320,9 +1374,19 @@ const menuButton = document.getElementById('menuButton');
     // Keep today's available times up to date while the page is open.
 
     setInterval(() => {
+      const today = getTodayISO();
+      if (bookingDate.min !== today || bookingDate.max !== getMaxBookingDateISO()) setDateLimits();
 
-      if (bookingState.date === getTodayISO()) refreshTimeButtons();
-
+      if (bookingState.date && bookingState.date < today) {
+        bookingState.date = '';
+        bookingState.time = '';
+        bookingState.confirmed = false;
+        bookingDate.value = '';
+        timeButtons.forEach(button => button.classList.remove('selected'));
+        refreshTimeButtons();
+      } else if (bookingState.date === today) {
+        refreshTimeButtons();
+      }
     }, 30000);
 
 
@@ -1396,8 +1460,9 @@ const menuButton = document.getElementById('menuButton');
         // This avoids redirects/CORS problems caused by mixing content types.
 
         const formData = new FormData(leadForm);
-
-        const payload = Object.fromEntries(formData.entries());
+        // Compatible fallback for browsers that do not support Object.fromEntries.
+        const payload = {};
+        formData.forEach((value, key) => { payload[key] = value; });
 
 
 

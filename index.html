@@ -11,6 +11,7 @@
   <title>SÉLYS Hair & Beauty – Web Concierge Demo</title>
 
   <meta name="description" content="Premium Hair Salon Website Demo in Münster mit Online-Terminbuchung und WhatsApp." />
+  <meta name="robots" content="noindex,follow">
 
 
 
@@ -260,7 +261,7 @@
 
 
 
-      <form id="bookingSubmitForm" action="https://api.web3forms.com/submit" method="POST" novalidate class="bg-white border border-black/10 shadow-luxury">
+      <form id="bookingSubmitForm" novalidate class="bg-white border border-black/10 shadow-luxury">
 
         <input type="hidden" name="access_key" value="">
 
@@ -372,7 +373,7 @@
 
               <button type="button" class="time-option min-h-[48px] border border-black/10 text-sm" data-time="17:00">17:00</button>
 
-            </div></div>
+            </div><p id="bookingTimeHint" class="text-xs text-muted mt-3" aria-live="polite">Bitte wählen Sie zuerst ein Datum. Die verfügbaren Zeiten variieren je Werktag.</p></div>
 
             <div class="grid grid-cols-2 gap-3 mt-7"><button type="button" id="backToStep2" class="min-h-[52px] border border-black/15 font-semibold text-sm hover:bg-ivory transition">Zurück</button><button type="button" id="nextToStep4" disabled class="min-h-[52px] bg-charcoal text-white font-semibold text-sm disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black transition">Weiter</button></div>
 
@@ -596,7 +597,7 @@
 
       <div class="py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
 
-        <div class="text-center sm:text-left"><div class="font-serif text-xl tracking-wide">ÉLAN</div><div class="text-[8px] tracking-[.35em] uppercase text-white/40 mt-1">Hair & Beauty</div></div>
+        <div class="text-center sm:text-left"><div class="font-serif text-xl tracking-wide">SÉLYS</div><div class="text-[8px] tracking-[.35em] uppercase text-white/40 mt-1">Hair & Beauty</div></div>
 
         <div class="flex flex-wrap justify-center gap-x-6 gap-y-3 text-xs text-white/50"><a href="datenschutz.html" class="hover:text-white transition">Datenschutz</a><a href="impressum.html" class="hover:text-white transition">Impressum</a></div>
 
@@ -685,7 +686,7 @@
 
     "@type":"HairSalon",
 
-    "name":"ÉLAN Hair & Beauty",
+    "name":"SÉLYS Hair & Beauty",
 
     "description":"Premium Hair Salon in Münster mit Haarschnitten, Colorationen, Balayage und Pflegebehandlungen.",
 

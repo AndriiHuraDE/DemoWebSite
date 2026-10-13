@@ -282,6 +282,7 @@ a {
   position: relative;
   width: 100%;
   max-width: 480px;
+  height: min(780px, 100vh); /* Fallback for older mobile browsers */
   height: min(780px, 100dvh);
   background: #efeae2;
   overflow: hidden;
@@ -668,6 +669,32 @@ a {
   .whatsapp-header-actions {
     margin-left: auto;
   }
+}
+
+
+/* Form validation errors: keep messages clearly visible on every device. */
+.field-error {
+  margin-top: 0.45rem;
+  color: #b42318;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.field-error-dark {
+  color: #fca5a5;
+}
+
+input[aria-invalid="true"],
+select[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.12);
+}
+
+input[type="checkbox"][aria-invalid="true"] {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
