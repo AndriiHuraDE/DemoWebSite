@@ -566,6 +566,8 @@ const menuButton = document.getElementById('menuButton');
 
     const bookingState = { service:'', price:'', staff:'', date:'', time:'', confirmed:false };
     let currentBookingStep = 1;
+    // Hard lock after the demo confirmation: only resetBooking() may unlock the flow.
+    let bookingFlowLocked = false;
 
 
 
@@ -661,8 +663,9 @@ const menuButton = document.getElementById('menuButton');
 
 
     function canVisitBookingStep(step) {
-      // Once the demo booking is completed, lock every previous step.
-      // The only way to make a new selection is the explicit restart button.
+      // Once the demo booking is completed, only the confirmation screen remains available.
+      // The hard lock is cleared exclusively by the explicit restart button.
+      if (bookingFlowLocked) return step === 5;
       if (bookingState.confirmed) return step === 5;
       if (step === 1) return true;
       if (step === 2) return Boolean(bookingState.service);
@@ -678,6 +681,9 @@ const menuButton = document.getElementById('menuButton');
     }
 
     function updateBookingStepIndicators(currentStep) {
+      const stepNavigation = document.getElementById('stepIndicator1')?.parentElement;
+      if (stepNavigation) stepNavigation.classList.toggle('hidden', bookingFlowLocked);
+
       for (let i = 1; i <= 5; i++) {
         const indicator = document.getElementById(`stepIndicator${i}`);
         const available = canVisitBookingStep(i);
@@ -698,6 +704,8 @@ const menuButton = document.getElementById('menuButton');
     }
 
     function showBookingStep(step) {
+      // Ignore every attempt to navigate away after confirmation; only reset unlocks the flow.
+      if (bookingFlowLocked && step !== 5) return;
       // Keep direct navigation from skipping required booking choices.
       if (!canVisitBookingStep(step)) return;
       currentBookingStep = step;
@@ -1275,6 +1283,11 @@ const menuButton = document.getElementById('menuButton');
 
     function resetBooking() {
 
+      // This is the only action that can unlock navigation after the final confirmation.
+      bookingFlowLocked = false;
+      const stepNavigation = document.getElementById('stepIndicator1')?.parentElement;
+      if (stepNavigation) stepNavigation.classList.remove('hidden');
+
       bookingState.service='';
 
       bookingState.price='';
@@ -1444,6 +1457,9 @@ const menuButton = document.getElementById('menuButton');
 
 
       bookingState.confirmed = true;
+      bookingFlowLocked = true;
+      // Hide all step-navigation buttons so the restart action is the only form control left.
+      updateBookingStepIndicators(5);
       showBookingStep(5);
 
       showToast('Demo abgeschlossen','So würde die Terminbestätigung nach der Buchung aussehen.');
@@ -1459,6 +1475,7 @@ const menuButton = document.getElementById('menuButton');
     // Keep today's available times up to date while the page is open.
 
     setInterval(() => {
+      if (bookingFlowLocked) return;
       const today = getTodayISO();
       if (bookingDate.min !== today || bookingDate.max !== getMaxBookingDateISO()) setDateLimits();
 
