@@ -128,7 +128,7 @@ const menuButton = document.getElementById('menuButton');
 
     if (window.location.protocol === 'file:') {
 
-      setTimeout(() => showToast('hCaptcha: bitte online testen','hCaptcha funktioniert nicht direkt aus einer file://-Datei. Öffnen Sie die Website über einen echten Webserver/Hosting. 🎯'), 900);
+      setTimeout(() => showToast('Kontaktformular nur online','Der echte Spam-Schutz im Kontaktformular benötigt eine gehostete HTTPS-Seite. Die Termin-Demo verwendet eine einfache Demo-Checkbox.'), 900);
 
     }
 
@@ -585,6 +585,27 @@ const menuButton = document.getElementById('menuButton');
 
     // This form is a demo only. Prevent every possible native/implicit submission.
     bookingForm.addEventListener('submit', event => event.preventDefault());
+
+    // Booking uses a simple local demo checkbox, not a real CAPTCHA provider.
+    const bookingCaptchaCheck = document.getElementById('bookingCaptchaCheck');
+    const bookingCaptchaError = document.getElementById('bookingCaptchaError');
+    const bookingCaptchaMessage = 'Bitte bestätigen Sie, dass Sie kein Roboter sind.';
+
+    function updateBookingDemoCaptchaError(show) {
+      bookingCaptchaCheck.setAttribute('aria-invalid', show ? 'true' : 'false');
+      bookingCaptchaCheck.setCustomValidity(show ? bookingCaptchaMessage : '');
+      bookingCaptchaError.textContent = show ? bookingCaptchaMessage : '';
+      bookingCaptchaError.classList.toggle('hidden', !show);
+    }
+
+    bookingCaptchaCheck.addEventListener('change', () => {
+      if (bookingCaptchaCheck.checked) {
+        bookingCaptchaCheck.dataset.attempted = 'false';
+        updateBookingDemoCaptchaError(false);
+      } else if (bookingCaptchaCheck.dataset.attempted === 'true') {
+        updateBookingDemoCaptchaError(true);
+      }
+    });
 
     const bookingDate = document.getElementById('bookingDate');
 
@@ -1336,11 +1357,10 @@ const menuButton = document.getElementById('menuButton');
 
 
 
-      if (window.hcaptcha && document.getElementById('bookingCaptcha')) {
-
-        try { window.hcaptcha.reset(document.getElementById('bookingCaptcha')); } catch (_) {}
-
-      }
+      // Reset the local demo checkbox (the real hCaptcha remains only on the live contact form).
+      bookingCaptchaCheck.checked = false;
+      bookingCaptchaCheck.dataset.attempted = 'false';
+      updateBookingDemoCaptchaError(false);
 
 
 
@@ -1430,13 +1450,14 @@ const menuButton = document.getElementById('menuButton');
 
       }
 
-      if (!getCaptchaToken(bookingForm)) {
-
-        showToast('hCaptcha fehlt','Bitte lösen Sie zuerst die hCaptcha-Prüfung.');
-
+      if (!bookingCaptchaCheck.checked) {
+        bookingCaptchaCheck.dataset.attempted = 'true';
+        updateBookingDemoCaptchaError(true);
+        bookingCaptchaCheck.focus({ preventScroll: true });
+        window.setTimeout(() => bookingCaptchaCheck.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
         return;
-
       }
+      updateBookingDemoCaptchaError(false);
 
 
 
