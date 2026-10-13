@@ -127,6 +127,11 @@ h1, h2, h3, h4 {
   opacity: .45;
 }
 
+/* Completed steps remain legible after the demo confirmation, but stay locked. */
+.step.completed:disabled {
+  opacity: .78;
+}
+
 .step.active {
   background: #1A1A1A;
   color: #fff;

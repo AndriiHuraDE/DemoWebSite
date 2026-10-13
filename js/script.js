@@ -661,6 +661,9 @@ const menuButton = document.getElementById('menuButton');
 
 
     function canVisitBookingStep(step) {
+      // Once the demo booking is completed, lock every previous step.
+      // The only way to make a new selection is the explicit restart button.
+      if (bookingState.confirmed) return step === 5;
       if (step === 1) return true;
       if (step === 2) return Boolean(bookingState.service);
       if (step === 3) return Boolean(bookingState.service && bookingState.staff);
@@ -686,7 +689,10 @@ const menuButton = document.getElementById('menuButton');
           indicator.setAttribute('aria-current', 'step');
         } else {
           indicator.removeAttribute('aria-current');
-          if (i < currentStep && available) indicator.classList.add('completed');
+          // After confirmation, show earlier steps as completed but keep them disabled.
+          if (i < currentStep && (available || bookingState.confirmed)) {
+            indicator.classList.add('completed');
+          }
         }
       }
     }
