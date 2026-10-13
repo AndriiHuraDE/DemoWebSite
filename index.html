@@ -284,15 +284,15 @@
 
         <div class="grid grid-cols-5 border-b border-black/10">
 
-          <div id="stepIndicator1" class="step active min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">01</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Service</span></div>
+          <button id="stepIndicator1" type="button" data-booking-step="1" aria-label="Zu Schritt 1: Service" aria-current="step" class="step active min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">01</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Service</span></button>
 
-          <div id="stepIndicator2" class="step min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">02</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Teammitglied</span></div>
+          <button id="stepIndicator2" type="button" data-booking-step="2" aria-label="Zu Schritt 2: Teammitglied" disabled class="step min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">02</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Teammitglied</span></button>
 
-          <div id="stepIndicator3" class="step min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">03</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Termin</span></div>
+          <button id="stepIndicator3" type="button" data-booking-step="3" aria-label="Zu Schritt 3: Termin" disabled class="step min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">03</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Termin</span></button>
 
-          <div id="stepIndicator4" class="step min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">04</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Daten</span></div>
+          <button id="stepIndicator4" type="button" data-booking-step="4" aria-label="Zu Schritt 4: Kontaktdaten" disabled class="step min-h-[68px] flex flex-col items-center justify-center gap-1 border-r border-black/10"><span class="text-xs font-semibold">04</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Daten</span></button>
 
-          <div id="stepIndicator5" class="step min-h-[68px] flex flex-col items-center justify-center gap-1"><span class="text-xs font-semibold">05</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Bestätigung</span></div>
+          <button id="stepIndicator5" type="button" data-booking-step="5" aria-label="Zu Schritt 5: Bestätigung" disabled class="step min-h-[68px] flex flex-col items-center justify-center gap-1"><span class="text-xs font-semibold">05</span><span class="hidden sm:block text-[10px] uppercase tracking-wider">Bestätigung</span></button>
 
         </div>
 
@@ -450,6 +450,58 @@
 
 
 
+  <!-- DEMO SALON LOCATION MAP -->
+  <section id="standort-demo" class="location-section py-16 sm:py-20 lg:py-24 bg-cream">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-10 sm:mb-12">
+        <div class="flex items-center justify-center gap-4 mb-5">
+          <div class="gold-line"></div>
+          <span class="text-xs sm:text-sm tracking-[.25em] uppercase text-muted">Standort</span>
+          <div class="gold-line"></div>
+        </div>
+        <h2 class="text-4xl sm:text-5xl leading-tight mb-4">So finden Sie uns</h2>
+        <p class="text-muted max-w-2xl mx-auto leading-7">Die Karte zeigt beispielhaft einen Bereich in der Münsteraner Innenstadt. Der Standort ist Teil dieser Demo.</p>
+      </div>
+
+      <div class="location-layout">
+        <div class="location-map-column">
+          <div class="location-map-label">
+            <span class="location-map-badge">DEMO-KARTE · BEISPIELREGION MÜNSTER</span>
+          </div>
+          <div class="location-map-frame">
+            <iframe
+              title="Google Maps – Beispielregion Münster Innenstadt"
+              src="https://maps.google.com/maps?q=51.9625%2C7.6257&amp;z=16&amp;hl=de&amp;output=embed"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+
+        <div class="location-info-card">
+          <span class="location-kicker">SÉLYS Hair &amp; Beauty</span>
+          <h3 class="font-serif text-3xl sm:text-4xl mt-3 mb-5">Wir freuen uns auf Sie.</h3>
+          <div class="location-address-row">
+            <span class="location-pin" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            </span>
+            <div>
+              <p class="font-semibold">Musterstraße 10</p>
+              <p class="text-sm text-muted mt-1">48143 Münster</p>
+            </div>
+          </div>
+          <p class="location-demo-note">Hinweis: Salonname und Adresse sind Beispieldaten. Die Karte zeigt beispielhaft die Münsteraner Innenstadt und markiert nicht die fiktive Adresse.</p>
+          <a class="location-map-link" href="https://www.google.com/maps/search/?api=1&amp;query=51.9625%2C7.6257" target="_blank" rel="noopener noreferrer">
+            Beispielstandort in Google Maps ansehen
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
   <!-- B2B LEAD GENERATION -->
 
   <section id="kontakt" class="py-20 sm:py-24 lg:py-28 bg-ivory">
@@ -544,7 +596,7 @@
 
       <div class="py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
 
-        <div class="text-center sm:text-left"><div class="font-serif text-xl tracking-wide">SÉLYS</div><div class="text-[8px] tracking-[.35em] uppercase text-white/40 mt-1">Hair & Beauty</div></div>
+        <div class="text-center sm:text-left"><div class="font-serif text-xl tracking-wide">ÉLAN</div><div class="text-[8px] tracking-[.35em] uppercase text-white/40 mt-1">Hair & Beauty</div></div>
 
         <div class="flex flex-wrap justify-center gap-x-6 gap-y-3 text-xs text-white/50"><a href="datenschutz.html" class="hover:text-white transition">Datenschutz</a><a href="impressum.html" class="hover:text-white transition">Impressum</a></div>
 
@@ -633,7 +685,7 @@
 
     "@type":"HairSalon",
 
-    "name":"SÉLYS Hair & Beauty",
+    "name":"ÉLAN Hair & Beauty",
 
     "description":"Premium Hair Salon in Münster mit Haarschnitten, Colorationen, Balayage und Pflegebehandlungen.",
 

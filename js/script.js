@@ -479,7 +479,8 @@ const menuButton = document.getElementById('menuButton');
     });
 
 
-    const bookingState = { service:'', price:'', staff:'', date:'', time:'' };
+    const bookingState = { service:'', price:'', staff:'', date:'', time:'', confirmed:false };
+    let currentBookingStep = 1;
 
 
 
@@ -541,23 +542,69 @@ const menuButton = document.getElementById('menuButton');
 
 
 
-    function showBookingStep(step) {
-
-      for (let i = 1; i <= 5; i++) {
-
-        document.getElementById(`bookingStep${i}`).classList.toggle('hidden', i !== step);
-
-        const indicator = document.getElementById(`stepIndicator${i}`);
-
-        indicator.classList.remove('active', 'completed');
-
-        if (i === step) indicator.classList.add('active');
-
-        if (i < step) indicator.classList.add('completed');
-
+    function canVisitBookingStep(step) {
+      if (step === 1) return true;
+      if (step === 2) return Boolean(bookingState.service);
+      if (step === 3) return Boolean(bookingState.service && bookingState.staff);
+      if (step === 4) {
+        const date = bookingState.date;
+        const validDate = Boolean(
+          date && bookingDate.value === date && isFourDigitYearValue(date) &&
+          date >= getTodayISO() && date <= '2099-12-31'
+        );
+        const validTime = Boolean(bookingState.time && timeButtons.some(button => button.dataset.time === bookingState.time && !button.disabled));
+        return Boolean(bookingState.service && bookingState.staff && validDate && validTime);
       }
-
+      if (step === 5) return bookingState.confirmed === true;
+      return false;
     }
+
+    function updateBookingStepIndicators(currentStep) {
+      for (let i = 1; i <= 5; i++) {
+        const indicator = document.getElementById(`stepIndicator${i}`);
+        const available = canVisitBookingStep(i);
+        indicator.disabled = !available;
+        indicator.setAttribute('aria-disabled', available ? 'false' : 'true');
+        indicator.classList.remove('active', 'completed');
+        if (i === currentStep) {
+          indicator.classList.add('active');
+          indicator.setAttribute('aria-current', 'step');
+        } else {
+          indicator.removeAttribute('aria-current');
+          if (i < currentStep && available) indicator.classList.add('completed');
+        }
+      }
+    }
+
+    function showBookingStep(step) {
+      // Keep direct navigation from skipping required booking choices.
+      if (!canVisitBookingStep(step)) return;
+      currentBookingStep = step;
+      for (let i = 1; i <= 5; i++) {
+        document.getElementById(`bookingStep${i}`).classList.toggle('hidden', i !== step);
+      }
+      updateBookingStepIndicators(step);
+    }
+
+    document.querySelectorAll('[data-booking-step]').forEach(indicator => {
+      indicator.addEventListener('click', () => {
+        const targetStep = Number(indicator.dataset.bookingStep);
+        if (canVisitBookingStep(targetStep)) {
+          // Refresh slot availability before entering the appointment/contact steps.
+          if (targetStep >= 3) refreshTimeButtons();
+          if (canVisitBookingStep(targetStep)) showBookingStep(targetStep);
+        } else {
+          const hint = targetStep === 2
+            ? 'Bitte wählen Sie zuerst eine Leistung.'
+            : targetStep === 3
+              ? 'Bitte wählen Sie zuerst eine Leistung und ein Teammitglied.'
+              : targetStep === 4
+                ? 'Bitte wählen Sie zuerst einen gültigen Termin mit Uhrzeit.'
+                : 'Bitte schließen Sie zuerst die Demo-Anfrage ab.';
+          showToast('Schritt noch nicht verfügbar', hint);
+        }
+      });
+    });
 
 
 
@@ -728,6 +775,7 @@ const menuButton = document.getElementById('menuButton');
 
 
       validateStep3();
+      updateBookingStepIndicators(currentBookingStep);
 
     }
 
@@ -754,6 +802,7 @@ const menuButton = document.getElementById('menuButton');
       validateBookingDate();
 
       bookingState.date = bookingDate.value;
+      bookingState.confirmed = false;
 
       bookingState.time = '';
 
@@ -770,6 +819,7 @@ const menuButton = document.getElementById('menuButton');
       validateBookingDate();
 
       bookingState.date = bookingDate.value;
+      bookingState.confirmed = false;
 
       bookingState.time = '';
 
@@ -966,8 +1016,10 @@ const menuButton = document.getElementById('menuButton');
       bookingState.service = button.dataset.service;
 
       bookingState.price = button.dataset.price;
+      bookingState.confirmed = false;
 
       document.getElementById('nextToStep2').disabled = false;
+      updateBookingStepIndicators(currentBookingStep);
 
     }));
 
@@ -988,8 +1040,10 @@ const menuButton = document.getElementById('menuButton');
       button.classList.add('selected');
 
       bookingState.staff = button.dataset.staff;
+      bookingState.confirmed = false;
 
       document.getElementById('nextToStep3').disabled = false;
+      updateBookingStepIndicators(currentBookingStep);
 
     }));
 
@@ -1016,10 +1070,12 @@ const menuButton = document.getElementById('menuButton');
       button.classList.add('selected');
 
       bookingState.time = button.dataset.time;
+      bookingState.confirmed = false;
 
       document.getElementById('bookingHiddenTime').value = bookingState.time;
 
       validateStep3();
+      updateBookingStepIndicators(currentBookingStep);
 
     }));
 
@@ -1098,6 +1154,7 @@ const menuButton = document.getElementById('menuButton');
       bookingState.date='';
 
       bookingState.time='';
+      bookingState.confirmed=false;
 
 
 
@@ -1247,6 +1304,7 @@ const menuButton = document.getElementById('menuButton');
 
 
 
+      bookingState.confirmed = true;
       showBookingStep(5);
 
       showToast('Demo abgeschlossen','So würde die Terminbestätigung nach der Buchung aussehen.');
