@@ -747,6 +747,143 @@ input[type="checkbox"][aria-invalid="true"] {
   border: 0;
 }
 
+
+
+/* Compact and consistent location details: one icon size and one text scale. */
+.location-address-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 2px 0 12px;
+}
+
+.location-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px 12px;
+  width: 100%;
+  margin: 0 0 10px;
+}
+
+.location-contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  min-width: 0;
+}
+
+.location-contact-icon {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  align-items: center;
+  justify-content: center;
+  background: #f7f3ec;
+  color: #9a7a42;
+}
+
+.location-contact-icon svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+}
+
+.location-contact-copy,
+.location-hours-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+  padding-top: 1px;
+}
+
+.location-detail-label {
+  display: block;
+  color: #706b63;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .09em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.location-contact-copy a,
+.location-detail-value {
+  margin: 0;
+  color: #1a1a1a;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+
+.location-contact-copy a:hover,
+.location-contact-copy a:focus-visible {
+  color: #9a7a42;
+  text-decoration: underline;
+}
+
+.location-hours-compact {
+  width: 100%;
+  padding: 8px 0 9px;
+  margin: 0 0 7px;
+  border-top: 1px solid rgba(26, 26, 26, .09);
+  border-bottom: 1px solid rgba(26, 26, 26, .09);
+}
+
+.location-hours-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.location-hours-copy {
+  flex: 1 1 auto;
+}
+
+.location-hours-title {
+  margin: 0 0 2px;
+  line-height: 1.25;
+}
+
+.location-hours-schedule {
+  margin: 0;
+  color: #706b63;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.location-hours-schedule strong {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.location-open-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 5px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.location-open-status.is-open { color: #287449; }
+.location-open-status.is-soon { color: #9a7a42; }
+.location-open-status.is-closed { color: #706b63; }
+
+.location-status-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
 /* Kept outside the map so it never covers Google Maps controls. */
 .location-map-badge {
   display: inline-flex;
@@ -766,7 +903,7 @@ input[type="checkbox"][aria-invalid="true"] {
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  padding: clamp(24px, 4vw, 42px);
+  padding: clamp(20px, 2.1vw, 24px);
   border: 1px solid rgba(26, 26, 26, .08);
   background: #fff;
   box-shadow: 0 20px 60px rgba(26, 26, 26, .07);
@@ -780,44 +917,14 @@ input[type="checkbox"][aria-invalid="true"] {
   text-transform: uppercase;
 }
 
-.location-address-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 13px;
-  margin: 2px 0 18px;
-}
-
-.location-pin {
-  display: inline-flex;
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
-  align-items: center;
-  justify-content: center;
-  background: #f7f3ec;
-  color: #9a7a42;
-}
-
-.location-pin svg {
-  width: 21px;
-  height: 21px;
-}
-
-.location-demo-note {
-  margin-top: 4px;
-  color: #706b63;
-  font-size: 12px;
-  line-height: 1.65;
-}
-
 .location-map-link {
   display: inline-flex;
   min-height: 48px;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin-top: 24px;
-  padding: 0 18px;
+  margin-top: 12px;
+  padding: 0 16px;
   border: 1px solid rgba(26, 26, 26, .22);
   color: #1a1a1a;
   font-size: 13px;
@@ -851,11 +958,24 @@ input[type="checkbox"][aria-invalid="true"] {
   }
 
   .location-info-card {
-    padding: 25px 22px;
+    padding: 22px 20px;
+  }
+
+  .location-contact-grid {
+    gap: 10px 9px;
+  }
+
+  .location-contact-copy a,
+  .location-detail-value,
+  .location-hours-schedule,
+  .location-open-status {
+    font-size: 12px;
   }
 
   .location-map-link {
     width: 100%;
+    min-height: 48px;
+    margin-top: 12px;
   }
 }
 

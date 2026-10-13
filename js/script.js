@@ -29,6 +29,85 @@ const menuButton = document.getElementById('menuButton');
 
 
 
+    // Dynamic opening status for the fictional SÉLYS demo salon.
+    // Always use Münster local time, even if the visitor is in another timezone.
+    function getSalonOpeningStatus(referenceDate = new Date()) {
+      const timeZone = 'Europe/Berlin';
+      const dayNumber = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
+      const weekdayName = {
+        1: 'Montag', 2: 'Dienstag', 3: 'Mittwoch', 4: 'Donnerstag',
+        5: 'Freitag', 6: 'Samstag', 7: 'Sonntag'
+      };
+      const formatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone,
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23'
+      });
+      const values = {};
+      formatter.formatToParts(referenceDate).forEach(part => { values[part.type] = part.value; });
+
+      const weekday = dayNumber[values.weekday];
+      const hour = Number(values.hour) === 24 ? 0 : Number(values.hour);
+      const minute = Number(values.minute);
+      const minutesNow = hour * 60 + minute;
+      const scheduleForDay = day => {
+        if (day >= 1 && day <= 5) return { open: 9 * 60, close: 18 * 60 };
+        if (day === 6) return { open: 9 * 60, close: 14 * 60 };
+        return null;
+      };
+      const formatTime = totalMinutes => `${String(Math.floor(totalMinutes / 60)).padStart(2, '0')}:${String(totalMinutes % 60).padStart(2, '0')}`;
+      const status = (text, state) => ({ text, state });
+      const todaySchedule = scheduleForDay(weekday);
+
+      if (todaySchedule && minutesNow >= todaySchedule.open && minutesNow < todaySchedule.close) {
+        const untilClose = todaySchedule.close - minutesNow;
+        if (untilClose <= 30) {
+          return status(`Schließt in ${untilClose} Min. · heute um ${formatTime(todaySchedule.close)} Uhr`, 'soon');
+        }
+        return status(`Geöffnet · heute bis ${formatTime(todaySchedule.close)} Uhr`, 'open');
+      }
+
+      if (todaySchedule && minutesNow < todaySchedule.open) {
+        const untilOpen = todaySchedule.open - minutesNow;
+        if (untilOpen <= 30) {
+          return status(`Öffnet in ${untilOpen} Min. · um ${formatTime(todaySchedule.open)} Uhr`, 'soon');
+        }
+        return status(`Geschlossen · öffnet heute um ${formatTime(todaySchedule.open)} Uhr`, 'closed');
+      }
+
+      // After closing time or on Sunday: find the next working day.
+      for (let offset = 1; offset <= 7; offset++) {
+        const nextDay = ((weekday - 1 + offset) % 7) + 1;
+        const nextSchedule = scheduleForDay(nextDay);
+        if (!nextSchedule) continue;
+        let openingText;
+        if (offset === 1) openingText = 'morgen';
+        else openingText = weekdayName[nextDay];
+        return status(`Geschlossen · öffnet ${openingText} um ${formatTime(nextSchedule.open)} Uhr`, 'closed');
+      }
+
+      return status('Geschlossen', 'closed');
+    }
+
+    function updateSalonOpeningStatus() {
+      const statusElement = document.getElementById('locationOpenStatus');
+      const statusText = document.getElementById('locationOpenStatusText');
+      if (!statusElement || !statusText) return;
+
+      const currentStatus = getSalonOpeningStatus();
+      statusElement.classList.remove('is-open', 'is-soon', 'is-closed');
+      statusElement.classList.add(`is-${currentStatus.state}`);
+      statusText.textContent = currentStatus.text;
+    }
+
+    updateSalonOpeningStatus();
+    // Keep the label fresh when the clock crosses an opening/closing threshold.
+    window.setInterval(updateSalonOpeningStatus, 60 * 1000);
+
+
+
     function showToast(title, text) {
 
       const toast = document.getElementById('toast');

@@ -481,18 +481,46 @@
         </div>
 
         <div class="location-info-card">
-          <span class="location-kicker">SÉLYS Hair &amp; Beauty</span>
-          <h3 class="font-serif text-3xl sm:text-4xl mt-3 mb-5">Wir freuen uns auf Sie.</h3>
-          <div class="location-address-row">
-            <span class="location-pin" aria-hidden="true">
+          <span class="location-kicker">SÉLYS Hair &amp; Beauty · DEMO-DATEN</span>
+          <h3 class="font-serif text-2xl sm:text-3xl mt-2 mb-3">Wir freuen uns auf Sie.</h3>
+          <div class="location-address-row location-contact-item">
+            <span class="location-contact-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
             </span>
-            <div>
-              <p class="font-semibold">Musterstraße 10</p>
-              <p class="text-sm text-muted mt-1">48143 Münster</p>
+            <div class="location-contact-copy">
+              <span class="location-detail-label">Adresse</span>
+              <p class="location-detail-value">Musterstraße 10<br>48143 Münster</p>
             </div>
           </div>
-          <p class="location-demo-note">Hinweis: Salonname und Adresse sind Beispieldaten. Die Karte zeigt beispielhaft die Münsteraner Innenstadt und markiert nicht die fiktive Adresse.</p>
+
+          <div class="location-contact-grid" aria-label="Kontaktdaten – Beispieldaten">
+            <div class="location-contact-item">
+              <span class="location-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16.5v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 10.2 18a19.4 19.4 0 0 1-6-6A19.8 19.8 0 0 1 1.9 3.2 2 2 0 0 1 3.9 1h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L7.8 9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 .9 2.6Z"/></svg></span>
+              <div class="location-contact-copy"><span class="location-detail-label">Telefon</span><a href="tel:+492515550190">+49 251 555 01 90</a></div>
+            </div>
+            <div class="location-contact-item">
+              <span class="location-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></span>
+              <div class="location-contact-copy"><span class="location-detail-label">E-Mail</span><a href="mailto:hallo@selys-demo.de">hallo@selys-demo.de</a></div>
+            </div>
+          </div>
+
+          <div class="location-hours-compact">
+            <div class="location-hours-layout">
+              <span class="location-contact-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+              </span>
+              <div class="location-hours-copy">
+                <div class="location-hours-title"><span class="location-detail-label">Öffnungszeiten</span></div>
+                <p class="location-hours-schedule">Mo–Fr <strong>09:00–18:00</strong> <span aria-hidden="true">·</span> Sa <strong>09:00–14:00</strong> <span aria-hidden="true">·</span> So <strong>geschlossen</strong></p>
+                <p id="locationOpenStatus" class="location-open-status is-closed" role="status" aria-live="polite">
+                  <span class="location-status-dot" aria-hidden="true"></span>
+                  <span id="locationOpenStatusText">Öffnungszeiten werden geprüft …</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          
           <a class="location-map-link" href="https://www.google.com/maps/search/?api=1&amp;query=51.9625%2C7.6257" target="_blank" rel="noopener noreferrer">
             Beispielstandort in Google Maps ansehen
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>
