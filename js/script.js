@@ -34,10 +34,10 @@ const menuButton = document.getElementById('menuButton');
     function getSalonOpeningStatus(referenceDate = new Date()) {
       const timeZone = 'Europe/Berlin';
       const dayNumber = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
-      const weekdayName = {
-        1: 'Montag', 2: 'Dienstag', 3: 'Mittwoch', 4: 'Donnerstag',
-        5: 'Freitag', 6: 'Samstag', 7: 'Sonntag'
-      };
+      const isEnglish = window.SELYS_LANG === 'en';
+      const weekdayName = isEnglish
+        ? { 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday', 7: 'Sunday' }
+        : { 1: 'Montag', 2: 'Dienstag', 3: 'Mittwoch', 4: 'Donnerstag', 5: 'Freitag', 6: 'Samstag', 7: 'Sonntag' };
       const formatter = new Intl.DateTimeFormat('en-GB', {
         timeZone,
         weekday: 'short',
@@ -64,17 +64,17 @@ const menuButton = document.getElementById('menuButton');
       if (todaySchedule && minutesNow >= todaySchedule.open && minutesNow < todaySchedule.close) {
         const untilClose = todaySchedule.close - minutesNow;
         if (untilClose <= 30) {
-          return status(`Schließt in ${untilClose} Min. · heute um ${formatTime(todaySchedule.close)} Uhr`, 'soon');
+          return status(isEnglish ? `Closes in ${untilClose} min · today at ${formatTime(todaySchedule.close)}` : `Schließt in ${untilClose} Min. · heute um ${formatTime(todaySchedule.close)} Uhr`, 'soon');
         }
-        return status(`Geöffnet · heute bis ${formatTime(todaySchedule.close)} Uhr`, 'open');
+        return status(isEnglish ? `Open · until ${formatTime(todaySchedule.close)} today` : `Geöffnet · heute bis ${formatTime(todaySchedule.close)} Uhr`, 'open');
       }
 
       if (todaySchedule && minutesNow < todaySchedule.open) {
         const untilOpen = todaySchedule.open - minutesNow;
         if (untilOpen <= 30) {
-          return status(`Öffnet in ${untilOpen} Min. · um ${formatTime(todaySchedule.open)} Uhr`, 'soon');
+          return status(isEnglish ? `Opens in ${untilOpen} min · at ${formatTime(todaySchedule.open)}` : `Öffnet in ${untilOpen} Min. · um ${formatTime(todaySchedule.open)} Uhr`, 'soon');
         }
-        return status(`Geschlossen · öffnet heute um ${formatTime(todaySchedule.open)} Uhr`, 'closed');
+        return status(isEnglish ? `Closed · opens today at ${formatTime(todaySchedule.open)}` : `Geschlossen · öffnet heute um ${formatTime(todaySchedule.open)} Uhr`, 'closed');
       }
 
       // After closing time or on Sunday: find the next working day.
@@ -83,9 +83,9 @@ const menuButton = document.getElementById('menuButton');
         const nextSchedule = scheduleForDay(nextDay);
         if (!nextSchedule) continue;
         let openingText;
-        if (offset === 1) openingText = 'morgen';
+        if (offset === 1) openingText = isEnglish ? 'tomorrow' : 'morgen';
         else openingText = weekdayName[nextDay];
-        return status(`Geschlossen · öffnet ${openingText} um ${formatTime(nextSchedule.open)} Uhr`, 'closed');
+        return status(isEnglish ? `Closed · opens ${openingText} at ${formatTime(nextSchedule.open)}` : `Geschlossen · öffnet ${openingText} um ${formatTime(nextSchedule.open)} Uhr`, 'closed');
       }
 
       return status('Geschlossen', 'closed');
@@ -102,6 +102,7 @@ const menuButton = document.getElementById('menuButton');
       statusText.textContent = currentStatus.text;
     }
 
+    window.updateSalonOpeningStatus = updateSalonOpeningStatus;
     updateSalonOpeningStatus();
     // Keep the label fresh when the clock crosses an opening/closing threshold.
     window.setInterval(updateSalonOpeningStatus, 60 * 1000);
@@ -128,7 +129,7 @@ const menuButton = document.getElementById('menuButton');
 
     if (window.location.protocol === 'file:') {
 
-      setTimeout(() => showToast('Kontaktformular nur online','Der echte Spam-Schutz im Kontaktformular benötigt eine gehostete HTTPS-Seite. Die Termin-Demo verwendet eine einfache Demo-Checkbox.'), 900);
+      setTimeout(() => showToast(bookingText('contact.onlineTitle', 'Kontaktformular nur online'), bookingText('contact.onlineNote', 'Der echte Spam-Schutz im Kontaktformular benötigt eine gehostete HTTPS-Seite. Die Termin-Demo verwendet eine einfache Demo-Checkbox.')), 900);
 
     }
 
@@ -154,28 +155,20 @@ const menuButton = document.getElementById('menuButton');
       processing: false
     };
 
-    // Canonical service data. Numeric menu values are internal only;
-    // the chat always displays the full human-readable label.
-    const whatsappServices = {
-      '1': { name: 'Damen Haarschnitt', price: '49 €', label: 'Damen Haarschnitt – 49 €' },
-      '2': { name: 'Balayage', price: 'ab 129 €', label: 'Balayage – ab 129 €' },
-      '3': { name: 'Herren Styling', price: '35 €', label: 'Herren Styling – 35 €' },
-      '4': { name: 'Pflegebehandlung', price: '29 €', label: 'Pflegebehandlung – 29 €' }
-    };
-
-    // Beispielhafte Öffnungszeiten für die DEMO.
-    // 1 = Montag ... 5 = Freitag.
-    // Jeder Wochentag hat bewusst unterschiedliche Beispielzeiten.
-    const demoWeekSchedule = {
-      1: ['09:00', '12:00', '15:30'],
-      2: ['10:30', '14:00', '17:00'],
-      3: ['09:00', '14:00', '15:30'],
-      4: ['10:30', '12:00', '17:00'],
-      5: ['09:00', '10:30', '14:00', '17:00']
-    };
+    // WhatsApp preview is a scripted demo, not an AI agent or a live WhatsApp connection.
+    // It reuses the same salon data and locally saved demo bookings as the main booking flow.
+    const salonData = window.SELYS_DATA;
+    const waIsEnglish = () => window.SELYS_LANG === 'en';
+    const waText = (de, en) => waIsEnglish() ? en : de;
+    const waServiceName = service => waIsEnglish() ? service.nameEn : service.name;
+    const waServicePrice = service => service.priceLabel;
+    const waServiceLabel = service => `${waServiceName(service)} – ${waServicePrice(service)}`;
+    const waStaffName = member => member.name;
 
     function whatsappTime() {
-      return new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+      return new Date().toLocaleTimeString(waIsEnglish() ? 'en-GB' : 'de-DE', {
+        timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit'
+      });
     }
 
     function addWhatsAppMessage(text, sender = 'bot') {
@@ -242,133 +235,94 @@ const menuButton = document.getElementById('menuButton');
       });
     }
 
-    function formatDemoDate(date) {
-      return date.toLocaleDateString('de-DE', {
-        weekday: 'long',
-        day: '2-digit',
-        month: 'long'
-      });
-    }
-
     function toISODate(date) {
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    }
-
-    function getCurrentMinutes() {
-      const now = new Date();
-      return now.getHours() * 60 + now.getMinutes();
-    }
-
-    function timeToMinutes(time) {
-      const [hours, minutes] = time.split(':').map(Number);
-      return hours * 60 + minutes;
-    }
-
-    function getDemoDaysNext7Days() {
-      const now = new Date();
-      now.setSeconds(0, 0);
-
-      const today = new Date(now);
-      today.setHours(0, 0, 0, 0);
-
-      const todayMinutes = getCurrentMinutes();
-      const days = [];
-
-      // Today + the following 6 calendar days = exactly 7 calendar days.
-      for (let offset = 0; offset < 7; offset++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + offset);
-
-        const weekday = date.getDay(); // 0 Sun ... 6 Sat
-        if (weekday === 0 || weekday === 6) continue;
-
-        let times = [...(demoWeekSchedule[weekday] || [])];
-
-        // For today, never show a time that has already passed.
-        if (offset === 0) {
-          times = times.filter(time => timeToMinutes(time) > todayMinutes);
-        }
-
-        // If today has no remaining slots, it must not be offered at all.
-        if (!times.length) continue;
-
-        days.push({
-          date,
-          day: date.getDate(),
-          iso: toISODate(date),
-          weekday,
-          times,
-          label: formatDemoDate(date)
-        });
-      }
-
-      return days;
-    }
-
-    function getDemoWeekdays() {
-      return getDemoDaysNext7Days();
-    }
-
-    function findDemoDay(value) {
-      const days = getDemoWeekdays();
-      const normalized = value.toLowerCase();
-      return days.find(day =>
-        value === day.iso ||
-        value === String(day.day) ||
-        normalized.includes(day.label.toLowerCase()) ||
-        normalized.includes(day.label.split(' ')[0].toLowerCase())
-      );
     }
 
     function whatsappMenu() {
       whatsappState.step = 'menu';
       setWhatsAppQuickReplies([
-        { label: 'Termin buchen', value: '1' },
-        { label: 'Preise', value: '2' },
-        { label: 'Öffnungszeiten', value: '3' },
-        { label: 'Kontakt', value: '4' }
+        { label: waText('Termin buchen', 'Book an appointment'), value: '1' },
+        { label: waText('Preise', 'Prices'), value: '2' },
+        { label: waText('Öffnungszeiten', 'Opening hours'), value: '3' },
+        { label: waText('Kontakt', 'Contact'), value: '4' }
       ]);
     }
 
     function whatsappAskService() {
+
       whatsappState.step = 'service';
+      setWhatsAppQuickReplies((salonData?.services || []).map(service => ({
+        label: waServiceLabel(service), value: service.id, userLabel: waServiceLabel(service)
+      })));
+    }
+
+    function whatsappAskStaff() {
+      whatsappState.step = 'staff';
+      const eligible = (salonData?.staff || []).filter(member => whatsappState.service?.staff.includes(member.id));
       setWhatsAppQuickReplies([
-        { label: 'Damen Haarschnitt – 49 €', value: '1' },
-        { label: 'Balayage – ab 129 €', value: '2' },
-        { label: 'Herren Styling – 35 €', value: '3' },
-        { label: 'Pflegebehandlung – 29 €', value: '4' }
+        ...eligible.map(member => ({ label: waStaffName(member), value: member.id, userLabel: waStaffName(member) })),
+        { label: waText('Keine Präferenz', 'No preference'), value: 'any', userLabel: waText('Keine Präferenz', 'No preference') }
       ]);
     }
 
-    async function whatsappAskStaff() {
-      whatsappState.step = 'staff';
-      setWhatsAppQuickReplies([
-        { label: 'Anna Müller', value: '1' },
-        { label: 'Lukas Schneider', value: '2' },
-        { label: 'Sophie Weber', value: '3' },
-        { label: 'Keine Präferenz', value: '4' }
-      ]);
+    function getWhatsAppAvailableTimes(dateISO) {
+      return window.SELYS_BOOKING_ENGINE.getAvailableTimes({
+        service: whatsappState.service,
+        staff: salonData?.staff || [],
+        selectedStaffId: whatsappState.staff?.id || '',
+        date: dateISO,
+        bookings: getDemoBookings(),
+        todayISO: getTodayISO(),
+        currentMinutes: getCurrentMinutes()
+      });
+    }
+
+    function formatDemoDate(date) {
+      return date.toLocaleDateString(waIsEnglish() ? 'en-GB' : 'de-DE', {
+        timeZone: 'Europe/Berlin', weekday: 'long', day: '2-digit', month: 'long'
+      });
+    }
+
+    function getDemoDaysNext7Days() {
+      const days = [];
+      for (let offset = 0; offset < 7; offset++) {
+        const parts = getBerlinDateParts();
+        const date = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day) + offset, 12));
+        const weekday = date.getUTCDay();
+        if (weekday === 0) continue;
+        const iso = date.toISOString().slice(0, 10);
+        const times = getWhatsAppAvailableTimes(iso);
+        if (!times.length) continue;
+        days.push({ date, day: date.getUTCDate(), iso, weekday, times, label: formatDemoDate(date) });
+      }
+      return days;
     }
 
     function whatsappAskDate() {
       whatsappState.step = 'date';
-      const days = getDemoWeekdays();
+      const days = getDemoDaysNext7Days();
       setWhatsAppQuickReplies(days.map(day => ({
-        label: `${day.label} · ${day.times.length} frei`,
+        label: `${day.label} · ${day.times.length} ${waText('frei', 'available')}`,
         value: day.iso,
         userLabel: day.label
       })));
+      if (!days.length) {
+        whatsappState.step = 'done';
+        setWhatsAppQuickReplies([{ label: waText('Neue Demo starten', 'Start a new demo'), value: 'restart', userLabel: waText('Neue Demo starten', 'Start a new demo') }]);
+      }
     }
 
     function whatsappAskTime(day) {
       whatsappState.step = 'time';
       setWhatsAppQuickReplies([
         ...day.times.map(time => ({ label: time, value: time, userLabel: time })),
-        { label: '← Anderen Tag wählen', value: 'back-date', userLabel: '← Anderen Tag wählen' }
+        { label: waText('← Anderen Tag wählen', '← Choose another day'), value: 'back-date', userLabel: waText('← Anderen Tag wählen', '← Choose another day') }
       ]);
     }
 
     function resetWhatsAppDemo() {
+
       whatsappState.step = 'menu';
       whatsappState.service = null;
       whatsappState.staff = '';
@@ -377,9 +331,9 @@ const menuButton = document.getElementById('menuButton');
       whatsappState.processing = false;
       whatsappMessages.innerHTML = '';
       whatsappQuickReplies.innerHTML = '';
-      addWhatsAppMessage('Hallo 👋 Willkommen bei SÉLYS.');
-      addWhatsAppMessage('🤖 DEMO – interaktiver WhatsApp-Buchungsassistent.\nKeine echten Termine, keine echten Nachrichten – alles hier ist nur eine Simulation.');
-      addWhatsAppMessage('Wie können wir Ihnen helfen?\n\n1️⃣ Termin buchen\n2️⃣ Preise ansehen\n3️⃣ Öffnungszeiten\n4️⃣ Kontakt');
+      addWhatsAppMessage(waText('Hallo 👋 Willkommen bei SÉLYS.', 'Hello 👋 Welcome to SÉLYS.'));
+      addWhatsAppMessage(waText('DEMO – interaktiver WhatsApp-Buchungsassistent.\nKeine echten Termine und keine echten Nachrichten – alles ist eine Simulation.', 'DEMO – interactive WhatsApp booking preview.\nNo real appointments or messages are sent; this is a simulation.'));
+      addWhatsAppMessage(waText('Wie können wir Ihnen helfen?', 'How can we help you?'));
       whatsappMenu();
     }
 
@@ -395,21 +349,15 @@ const menuButton = document.getElementById('menuButton');
       let userMessage = String(displayValue || value).trim();
 
       if (whatsappState.step === 'service') {
-        const selectedService = whatsappServices[value] || Object.values(whatsappServices).find(service => {
-          const normalized = value.toLowerCase();
-          return normalized === service.label.toLowerCase() || normalized === service.name.toLowerCase();
-        });
-        if (selectedService) userMessage = selectedService.label;
+        const selected = (salonData?.services || []).find(service => service.id === value ||
+          [service.name, service.nameEn].some(name => name && name.toLowerCase() === value.toLowerCase()));
+        if (selected) userMessage = waServiceLabel(selected);
       }
 
       if (whatsappState.step === 'staff') {
-        const staffLabels = {
-          '1': 'Anna Müller',
-          '2': 'Lukas Schneider',
-          '3': 'Sophie Weber',
-          '4': 'Keine Präferenz'
-        };
-        if (staffLabels[value]) userMessage = staffLabels[value];
+        const selected = salonData?.staff?.find(member => member.id === value || member.name.toLowerCase() === value.toLowerCase());
+        if (selected) userMessage = selected.name;
+        else if (value === 'any') userMessage = waText('Keine Präferenz', 'No preference');
       }
 
       whatsappState.processing = true;
@@ -419,79 +367,67 @@ const menuButton = document.getElementById('menuButton');
       try {
         switch (whatsappState.step) {
           case 'menu':
-            if (value === '1' || /termin/i.test(value)) {
-              await botReply('Sehr gerne. Welche Behandlung möchten Sie buchen?');
-              await botReply('Wählen Sie einfach eine der Optionen unten.');
+            if (value === '1' || /termin|appointment|book/i.test(value)) {
+              await botReply(waText('Welche Behandlung möchten Sie buchen?', 'Which service would you like to book?'));
               whatsappAskService();
-            } else if (value === '2' || /preis/i.test(value)) {
-              await botReply('Unsere Beispielpreise:\n\nDamen Haarschnitt – 49 €\nBalayage – ab 129 €\nHerren Styling – 35 €\nPflegebehandlung – 29 €');
-              await botReply('Wie können wir Ihnen weiterhelfen?');
+            } else if (value === '2' || /preis|price/i.test(value)) {
+              const prices = (salonData?.services || []).map(service => waServiceLabel(service)).join('\n');
+              await botReply(`${waText('Unsere Beispielpreise:', 'Our demo prices:')}\n\n${prices}`);
               whatsappMenu();
-            } else if (value === '3' || /öffnungszeit/i.test(value)) {
-              await botReply('Beispiel-Öffnungszeiten:\nMo–Fr: 09:00–18:00 Uhr\nSa: 09:00–14:00 Uhr\nSo: geschlossen');
+            } else if (value === '3' || /öffnungszeit|opening/i.test(value)) {
+              await botReply(waText('Beispiel-Öffnungszeiten:\nMo–Fr: 09:00–18:00 Uhr\nSa: 09:00–14:00 Uhr\nSo: geschlossen', 'Example opening hours:\nMon–Fri: 09:00–18:00\nSat: 09:00–14:00\nSun: closed'));
               whatsappMenu();
-            } else if (value === '4' || /kontakt/i.test(value)) {
-              await botReply('SÉLYS Hair & Beauty\nMünster\nTelefon: +49 (0) 251 000 000\nE-Mail: hallo@selys-demo.de');
+            } else if (value === '4' || /kontakt|contact/i.test(value)) {
+              await botReply(waText('SÉLYS Hair & Beauty\nMünster\nTelefon: +49 251 555 01 90\nE-Mail: hallo@selys-demo.de', 'SÉLYS Hair & Beauty\nMünster\nPhone: +49 251 555 01 90\nEmail: hallo@selys-demo.de'));
               whatsappMenu();
             } else {
-              await botReply('Bitte wählen Sie 1, 2, 3 oder 4 – oder nutzen Sie eine der Schaltflächen unten.');
+              await botReply(waText('Bitte wählen Sie eine der Optionen unten.', 'Please choose one of the options below.'));
               whatsappMenu();
             }
             break;
 
           case 'service': {
-            const selectedService = whatsappServices[value] || Object.values(whatsappServices).find(service => {
-              const normalized = value.toLowerCase();
-              return normalized === service.label.toLowerCase() || normalized === service.name.toLowerCase();
-            });
-
+            const selectedService = (salonData?.services || []).find(service => service.id === value ||
+              [service.name, service.nameEn].some(name => name && name.toLowerCase() === value.toLowerCase()));
             if (!selectedService) {
-              await botReply('Bitte wählen Sie eine der vier Behandlungen.');
+              await botReply(waText('Bitte wählen Sie eine der angezeigten Behandlungen.', 'Please choose one of the listed services.'));
               whatsappAskService();
               break;
             }
-
-            // Keep the full human-readable service. The number is never
-            // used in the visible confirmation.
-            whatsappState.service = { ...selectedService };
-
-            await botReply(`Gute Wahl: ${selectedService.label}.`);
-            await botReply('Gibt es ein bevorzugtes Teammitglied? Sie können auch „Keine Präferenz“ auswählen.');
-            await whatsappAskStaff();
+            whatsappState.service = selectedService;
+            await botReply(`${waText('Gute Wahl:', 'Good choice:')} ${waServiceLabel(selectedService)}.`);
+            await botReply(waText('Gibt es ein bevorzugtes Teammitglied?', 'Do you have a preferred team member?'));
+            whatsappAskStaff();
             break;
           }
 
           case 'staff': {
-            const staff = {
-              '1': 'Anna Müller',
-              '2': 'Lukas Schneider',
-              '3': 'Sophie Weber',
-              '4': 'Keine Präferenz'
-            };
-            const chosen = staff[value] || Object.values(staff).find(name => value.toLowerCase().includes(name.toLowerCase()));
-            if (!chosen) {
-              await botReply('Bitte wählen Sie ein Teammitglied oder „Keine Präferenz“.');
+            const chosen = (salonData?.staff || []).find(member => member.id === value || member.name.toLowerCase() === value.toLowerCase());
+            if (!chosen && value !== 'any') {
+              await botReply(waText('Bitte wählen Sie ein Teammitglied oder „Keine Präferenz“.', 'Please choose a team member or “No preference”.'));
               whatsappAskStaff();
               break;
             }
-            whatsappState.staff = chosen;
-            await botReply(chosen === 'Keine Präferenz'
-              ? 'Alles klar – ohne bevorzugtes Teammitglied.'
-              : `Alles klar – ${chosen}.`);
-            await botReply('Welche Tage passen für Sie? Bitte wählen Sie einen verfügbaren Werktag in den nächsten 7 Tagen.');
+            whatsappState.staff = chosen ? { id: chosen.id, name: chosen.name } : { id: 'any', name: waText('Keine Präferenz', 'No preference') };
+            await botReply(chosen ? `${waText('Alles klar –', 'All right –')} ${chosen.name}.` : waText('Alles klar – ohne bevorzugtes Teammitglied.', 'All right – no team preference.'));
             whatsappAskDate();
+            if (whatsappState.step === 'date' && !whatsappQuickReplies.children.length) {
+              await botReply(waText('In den nächsten sieben Tagen ist für diese Auswahl kein passender Demo-Termin frei.', 'No suitable demo appointment is available for this selection in the next seven days.'));
+            } else {
+              await botReply(waText('Bitte wählen Sie einen verfügbaren Tag in den nächsten sieben Tagen.', 'Please choose an available day within the next seven days.'));
+            }
             break;
           }
 
           case 'date': {
-            const selectedDay = findDemoDay(value);
+            const selectedDay = getDemoDaysNext7Days().find(day => day.iso === value);
             if (!selectedDay) {
-              await botReply('Bitte wählen Sie einen der angezeigten Werktage.');
+              await botReply(waText('Bitte wählen Sie einen der angezeigten Tage.', 'Please choose one of the displayed days.'));
               whatsappAskDate();
               break;
             }
             whatsappState.date = selectedDay;
-            await botReply(`Für ${selectedDay.label} stehen in unserer DEMO diese Beispielzeiten zur Verfügung:`);
+            await botReply(`${waText('Für', 'Available times for')} ${selectedDay.label}:`);
             whatsappAskTime(selectedDay);
             break;
           }
@@ -499,34 +435,36 @@ const menuButton = document.getElementById('menuButton');
           case 'time': {
             if (value === 'back-date') {
               whatsappState.time = '';
-              await botReply('Natürlich. Wählen Sie bitte einen anderen Tag.');
+              await botReply(waText('Natürlich. Wählen Sie bitte einen anderen Tag.', 'Of course. Please choose another day.'));
               whatsappAskDate();
               break;
             }
-            if (!/^\d{2}:\d{2}$/.test(value) || !whatsappState.date.times.includes(value)) {
-              await botReply('Diese Uhrzeit steht für den gewählten Tag nicht zur Verfügung.');
-              whatsappAskTime(whatsappState.date);
+            const currentDay = getDemoDaysNext7Days().find(day => day.iso === whatsappState.date?.iso);
+            if (!/^\d{2}:\d{2}$/.test(value) || !currentDay?.times.includes(value)) {
+              await botReply(waText('Diese Uhrzeit ist nicht mehr verfügbar. Bitte wählen Sie einen anderen Termin.', 'This time is no longer available. Please choose another slot.'));
+              if (currentDay) whatsappAskTime(currentDay); else whatsappAskDate();
               break;
             }
+            whatsappState.date = currentDay;
             whatsappState.time = value;
-            const finalServiceLabel = whatsappState.service && whatsappState.service.label ? whatsappState.service.label : 'Gewählte Behandlung';
-            await botReply(`Perfekt. Ihre Beispielauswahl:\n\n${finalServiceLabel}\n${whatsappState.staff}\n${whatsappState.date.label}, ${whatsappState.time} Uhr`);
-            await botReply('✅ DEMO-Buchung vorbereitet.\n\nDies ist nur eine Simulation. Es wurde kein echter Termin gebucht und keine Nachricht an einen Salon gesendet.');
-            setWhatsAppQuickReplies([{ label: 'Neue Demo starten', value: 'restart', userLabel: 'Neue Demo starten' }]);
+            const endMinutes = Number(value.slice(0, 2)) * 60 + Number(value.slice(3)) + whatsappState.service.duration;
+            const endTime = `${String(Math.floor(endMinutes / 60)).padStart(2, '0')}:${String(endMinutes % 60).padStart(2, '0')}`;
+            await botReply(`${waText('Ihre Demo-Auswahl:', 'Your demo selection:')}\n\n${waServiceLabel(whatsappState.service)}\n${whatsappState.staff.name}\n${currentDay.label}, ${value}–${endTime}`);
+            await botReply(waText('DEMO-Buchung vorbereitet. Es wurde kein echter Termin gebucht und keine Nachricht gesendet.', 'Demo booking prepared. No real appointment was created and no message was sent.'));
+            setWhatsAppQuickReplies([{ label: waText('Neue Demo starten', 'Start a new demo'), value: 'restart', userLabel: waText('Neue Demo starten', 'Start a new demo') }]);
             whatsappState.step = 'done';
             break;
           }
 
           case 'done':
-            if (value.toLowerCase() === 'restart' || /neu/i.test(value)) {
-              resetWhatsAppDemo();
-            } else {
-              await botReply('Diese Demo ist abgeschlossen. Sie können unten eine neue Demo starten.');
-              setWhatsAppQuickReplies([{ label: 'Neue Demo starten', value: 'restart', userLabel: 'Neue Demo starten' }]);
+            if (value.toLowerCase() === 'restart' || /neu|new/i.test(value)) resetWhatsAppDemo();
+            else {
+              await botReply(waText('Diese Demo ist abgeschlossen. Sie können unten neu starten.', 'This demo is complete. You can start again below.'));
+              setWhatsAppQuickReplies([{ label: waText('Neue Demo starten', 'Start a new demo'), value: 'restart', userLabel: waText('Neue Demo starten', 'Start a new demo') }]);
             }
             break;
         }
-      } finally {
+            } finally {
         whatsappState.processing = false;
         whatsappInput.value = '';
         whatsappInput.focus();
@@ -564,10 +502,11 @@ const menuButton = document.getElementById('menuButton');
     });
 
 
-    const bookingState = { service:'', price:'', staff:'', date:'', time:'', confirmed:false };
+    const bookingState = { service:'', serviceId:'', price:'', staff:'', staffId:'', date:'', time:'', confirmed:false };
     let currentBookingStep = 1;
     // Hard lock after the demo confirmation: only resetBooking() may unlock the flow.
     let bookingFlowLocked = false;
+    let rescheduleReference = '';
 
 
 
@@ -589,12 +528,13 @@ const menuButton = document.getElementById('menuButton');
     // Booking uses a simple local demo checkbox, not a real CAPTCHA provider.
     const bookingCaptchaCheck = document.getElementById('bookingCaptchaCheck');
     const bookingCaptchaError = document.getElementById('bookingCaptchaError');
-    const bookingCaptchaMessage = 'Bitte bestätigen Sie, dass Sie kein Roboter sind.';
+    const bookingCaptchaMessage = () => bookingText('booking.errorCaptcha', 'Bitte bestätigen Sie, dass Sie kein Roboter sind.');
 
     function updateBookingDemoCaptchaError(show) {
+      const message = show ? bookingCaptchaMessage() : '';
       bookingCaptchaCheck.setAttribute('aria-invalid', show ? 'true' : 'false');
-      bookingCaptchaCheck.setCustomValidity(show ? bookingCaptchaMessage : '');
-      bookingCaptchaError.textContent = show ? bookingCaptchaMessage : '';
+      bookingCaptchaCheck.setCustomValidity(message);
+      bookingCaptchaError.textContent = message;
       bookingCaptchaError.classList.toggle('hidden', !show);
     }
 
@@ -615,32 +555,31 @@ const menuButton = document.getElementById('menuButton');
 
     const leadDateError = document.getElementById('leadDateError');
 
-    const timeButtons = Array.from(document.querySelectorAll('.time-option'));
+    let timeButtons = Array.from(document.querySelectorAll('.time-option'));
+    const BOOKING_STORAGE_KEY = 'selys-demo-bookings';
+    const BOOKING_DATA = window.SELYS_DATA;
 
 
 
-    function getTodayISO() {
-
-      const now = new Date();
-
-      const y = now.getFullYear();
-
-      const m = String(now.getMonth() + 1).padStart(2, '0');
-
-      const d = String(now.getDate()).padStart(2, '0');
-
-      return `${y}-${m}-${d}`;
-
+    function getBerlinDateParts(date = new Date()) {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+      }).formatToParts(date).reduce((result, part) => {
+        result[part.type] = part.value;
+        return result;
+      }, {});
+      return parts;
     }
 
-
+    function getTodayISO() {
+      const parts = getBerlinDateParts();
+      return `${parts.year}-${parts.month}-${parts.day}`;
+    }
 
     function getCurrentMinutes() {
-
-      const now = new Date();
-
-      return now.getHours() * 60 + now.getMinutes();
-
+      const parts = getBerlinDateParts();
+      return Number(parts.hour) * 60 + Number(parts.minute);
     }
 
 
@@ -653,33 +592,219 @@ const menuButton = document.getElementById('menuButton');
 
 
 
-    function getMaxBookingDateISO() {
-      const maxDate = new Date();
-      maxDate.setHours(0, 0, 0, 0);
-      maxDate.setDate(maxDate.getDate() + 6);
-      return toISODate(maxDate);
+    function getBerlinISODate(offsetDays = 0) {
+      const parts = getBerlinDateParts();
+      const date = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day) + offsetDays, 12));
+      return date.toISOString().slice(0, 10);
     }
+
+    function getBerlinWeekday(value) {
+      return new Date(`${value}T12:00:00Z`).getUTCDay();
+    }
+
+    function getMaxBookingDateISO() { return getBerlinISODate(13); }
 
 
 
     function isBookingDateAllowed(value) {
       if (!isFourDigitYearValue(value)) return false;
-      const selected = new Date(`${value}T00:00:00`);
-      if (Number.isNaN(selected.getTime()) || toISODate(selected) !== value) return false;
-      const weekday = selected.getDay();
-      return value >= getTodayISO() && value <= getMaxBookingDateISO() && weekday !== 0 && weekday !== 6;
+      const selected = new Date(`${value}T12:00:00Z`);
+      if (Number.isNaN(selected.getTime()) || selected.toISOString().slice(0, 10) !== value) return false;
+      const weekday = selected.getUTCDay();
+      return value >= getTodayISO() && value <= getMaxBookingDateISO() && weekday !== 0;
     }
 
 
 
-    // Example availability differs by weekday; only these times are selectable.
-    const bookingDaySchedule = {
-      1: ['09:00', '12:00', '15:30'],
-      2: ['10:30', '14:00', '17:00'],
-      3: ['09:00', '14:00', '15:30'],
-      4: ['10:30', '12:00', '17:00'],
-      5: ['09:00', '10:30', '14:00', '17:00']
-    };
+    // Availability is derived from one shared salon dataset and local demo bookings.
+    // Personal contact details are never stored in localStorage.
+    function getDemoBookings() {
+      try {
+        const value = JSON.parse(localStorage.getItem(BOOKING_STORAGE_KEY) || '[]');
+        return Array.isArray(value) ? value.filter(item => item && item.date && item.staffId && item.start && item.end) : [];
+      } catch (_) { return []; }
+    }
+
+    function saveDemoBooking(booking, replaceReference = '') {
+      const bookings = getDemoBookings();
+      if (replaceReference) {
+        const previous = bookings.find(item => item.reference === replaceReference && item.status !== 'cancelled');
+        if (!previous) return false;
+        previous.status = 'cancelled';
+        previous.cancelledAt = new Date().toISOString();
+        previous.replacedBy = booking.reference;
+      }
+      bookings.push(booking);
+      try { localStorage.setItem(BOOKING_STORAGE_KEY, JSON.stringify(bookings.slice(-100))); return true; }
+      catch (_) { return false; }
+    }
+
+    function formatSavedBookingDate(value) {
+      const date = new Date(`${value}T12:00:00Z`);
+      return date.toLocaleDateString(window.SELYS_LANG === 'en' ? 'en-GB' : 'de-DE', {
+        timeZone: 'Europe/Berlin', weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'
+      });
+    }
+
+    function renderSavedDemoBookings() {
+      const panel = document.getElementById('demoBookingsPanel');
+      const host = document.getElementById('demoBookingsList');
+      if (!panel || !host) return;
+      const active = getDemoBookings()
+        .filter(item => item.status !== 'cancelled')
+        .sort((a, b) => `${a.date} ${a.start}`.localeCompare(`${b.date} ${b.start}`));
+      panel.classList.toggle('hidden', active.length === 0);
+      host.innerHTML = active.map(item => {
+        const service = BOOKING_DATA.services.find(entry => entry.id === item.serviceId);
+        const member = BOOKING_DATA.staff.find(entry => entry.id === item.staffId);
+        const serviceName = service ? (window.SELYS_LANG === 'en' ? service.nameEn : service.name) : item.serviceId;
+        const staffName = member?.name || item.staffId;
+        const dateLabel = formatSavedBookingDate(item.date);
+        const rescheduleLabel = bookingText('booking.reschedule', 'Verschieben');
+        const cancelLabel = bookingText('booking.cancel', 'Stornieren');
+        return `<article class="demo-booking-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border border-black/10 bg-cream p-4" data-demo-booking="${String(item.reference).replace(/[^A-Za-z0-9_-]/g, '')}">
+          <div class="min-w-0">
+            <div class="font-semibold">${escapeHTML(serviceName)}</div>
+            <div class="text-sm text-muted mt-1">${escapeHTML(staffName)} · ${escapeHTML(dateLabel)} · ${escapeHTML(item.start)}–${escapeHTML(item.end)}</div>
+            <div class="text-xs text-muted mt-1">${escapeHTML(bookingText('booking.reference', 'Referenz'))}: ${escapeHTML(item.reference)}</div>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <button type="button" class="min-h-[42px] px-4 border border-black/20 text-xs font-semibold hover:bg-white" data-reschedule-booking="${escapeHTML(item.reference)}">${escapeHTML(rescheduleLabel)}</button>
+            <button type="button" class="min-h-[42px] px-4 border border-red-200 text-red-700 text-xs font-semibold hover:bg-red-50" data-cancel-booking="${escapeHTML(item.reference)}">${escapeHTML(cancelLabel)}</button>
+          </div>
+        </article>`;
+      }).join('');
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    }
+
+    function cancelDemoBooking(reference) {
+      const bookings = getDemoBookings();
+      const target = bookings.find(item => item.reference === reference && item.status !== 'cancelled');
+      if (!target) return false;
+      target.status = 'cancelled';
+      target.cancelledAt = new Date().toISOString();
+      try { localStorage.setItem(BOOKING_STORAGE_KEY, JSON.stringify(bookings.slice(-100))); return true; }
+      catch (_) { return false; }
+    }
+
+    function beginDemoReschedule(reference) {
+      const booking = getDemoBookings().find(item => item.reference === reference && item.status !== 'cancelled');
+      const service = booking && BOOKING_DATA.services.find(item => item.id === booking.serviceId);
+      const member = booking && BOOKING_DATA.staff.find(item => item.id === booking.staffId);
+      if (!booking || !service || !member) {
+        showToast(bookingText('booking.errorTitle', 'Demo-Termin nicht gefunden'), bookingText('booking.errorMissing', 'Dieser Demo-Termin kann nicht geändert werden.'));
+        return;
+      }
+
+      // Reuse the same five-step flow. The old slot stays blocked until the new slot is saved.
+      resetBooking();
+      rescheduleReference = reference;
+      bookingFlowLocked = false;
+      bookingState.serviceId = service.id;
+      bookingState.service = window.SELYS_LANG === 'en' ? service.nameEn : service.name;
+      bookingState.price = service.priceLabel;
+      bookingState.staffId = member.id;
+      bookingState.staff = member.name;
+      document.querySelectorAll('[data-service-id]').forEach(button => button.classList.toggle('selected', button.dataset.serviceId === service.id));
+      document.querySelectorAll('[data-staff]').forEach(button => button.classList.toggle('selected', button.dataset.staffId === member.id));
+      document.getElementById('bookingHiddenService').value = bookingState.service;
+      document.getElementById('bookingHiddenPrice').value = bookingState.price;
+      document.getElementById('bookingHiddenStaff').value = bookingState.staff;
+      document.getElementById('nextToStep2').disabled = false;
+      document.getElementById('nextToStep3').disabled = false;
+      updateStaffOptions();
+      showBookingStep(3);
+      refreshTimeButtons();
+      document.getElementById('booking').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      showToast(bookingText('booking.rescheduleTitle', 'Demo-Termin ändern'), bookingText('booking.rescheduleNote', 'Wählen Sie jetzt einen neuen Tag und eine neue Uhrzeit.'));
+    }
+
+    document.getElementById('demoBookingsList')?.addEventListener('click', event => {
+      const cancelButton = event.target.closest('[data-cancel-booking]');
+      if (cancelButton) {
+        const reference = cancelButton.dataset.cancelBooking;
+        const confirmed = window.confirm(bookingText('booking.confirmCancel', 'Diesen Demo-Termin wirklich stornieren?'));
+        if (!confirmed) return;
+        if (cancelDemoBooking(reference)) {
+          renderSavedDemoBookings();
+          refreshTimeButtons();
+          showToast(bookingText('booking.cancelledTitle', 'Demo-Termin storniert'), bookingText('booking.cancelledNote', 'Der lokale Demo-Termin wurde storniert.'));
+        } else {
+          showToast(bookingText('booking.errorTitle', 'Speicherfehler'), bookingText('common.storageError', 'Demo-Daten konnten nicht gespeichert werden.'));
+        }
+        return;
+      }
+      const rescheduleButton = event.target.closest('[data-reschedule-booking]');
+      if (rescheduleButton) beginDemoReschedule(rescheduleButton.dataset.rescheduleBooking);
+    });
+
+    function getSelectedServiceData() {
+      return BOOKING_DATA?.services?.find(service => service.id === bookingState.serviceId) || null;
+    }
+
+    function getCandidateStaff() {
+      return window.SELYS_BOOKING_ENGINE.getCandidateStaff(getSelectedServiceData(), BOOKING_DATA?.staff || [], bookingState.staffId);
+    }
+
+    function updateStaffOptions() {
+      const service = getSelectedServiceData();
+      document.querySelectorAll('[data-staff]').forEach(button => {
+        const id = button.dataset.staffId;
+        const available = id === 'any' || Boolean(service && service.staff.includes(id));
+        button.disabled = !available;
+        button.classList.toggle('is-unavailable', !available);
+        button.setAttribute('aria-disabled', available ? 'false' : 'true');
+      });
+    }
+
+    function hasStaffConflict(staffId, date, startMinutes, endMinutes) {
+      return !window.SELYS_BOOKING_ENGINE.isStaffAvailable({
+        member: BOOKING_DATA?.staff?.find(item => item.id === staffId),
+        date,
+        startMinutes,
+        duration: endMinutes - startMinutes,
+        bookings: getDemoBookings(),
+        todayISO: getTodayISO(),
+        currentMinutes: getCurrentMinutes()
+      });
+    }
+
+    function isStaffAvailable(member, date, startMinutes, duration) {
+      return window.SELYS_BOOKING_ENGINE.isStaffAvailable({
+        member, date, startMinutes, duration,
+        bookings: getDemoBookings(),
+        todayISO: getTodayISO(),
+        currentMinutes: getCurrentMinutes()
+      });
+    }
+
+    function getAvailableStaffForSlot(date, time) {
+      return window.SELYS_BOOKING_ENGINE.getAvailableStaffForSlot({
+        service: getSelectedServiceData(), staff: BOOKING_DATA?.staff || [],
+        selectedStaffId: bookingState.staffId, date, time,
+        bookings: getDemoBookings(), todayISO: getTodayISO(), currentMinutes: getCurrentMinutes()
+      });
+    }
+
+    function getAvailableTimes(date) {
+      const service = getSelectedServiceData();
+      if (!service || !isBookingDateAllowed(date)) return [];
+      return window.SELYS_BOOKING_ENGINE.getAvailableTimes({
+        service, staff: BOOKING_DATA?.staff || [], selectedStaffId: bookingState.staffId,
+        date, bookings: getDemoBookings(), todayISO: getTodayISO(), currentMinutes: getCurrentMinutes()
+      });
+    }
+
+    function formatBookingMoney(value) {
+      return new Intl.NumberFormat(window.SELYS_LANG === 'en' ? 'en-IE' : 'de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
+    }
+
+    function bookingText(key, fallback) {
+      return window.SELYS_T ? window.SELYS_T(key) : fallback;
+    }
 
 
 
@@ -745,13 +870,13 @@ const menuButton = document.getElementById('menuButton');
           if (canVisitBookingStep(targetStep)) showBookingStep(targetStep);
         } else {
           const hint = targetStep === 2
-            ? 'Bitte wählen Sie zuerst eine Leistung.'
+            ? bookingText('booking.errorStepService', 'Bitte wählen Sie zuerst eine Leistung.')
             : targetStep === 3
-              ? 'Bitte wählen Sie zuerst eine Leistung und ein Teammitglied.'
+              ? bookingText('booking.errorStepStaff', 'Bitte wählen Sie zuerst eine Leistung und ein Teammitglied.')
               : targetStep === 4
-                ? 'Bitte wählen Sie zuerst einen gültigen Termin mit Uhrzeit.'
-                : 'Bitte schließen Sie zuerst die Demo-Anfrage ab.';
-          showToast('Schritt noch nicht verfügbar', hint);
+                ? bookingText('booking.errorStepTime', 'Bitte wählen Sie zuerst einen gültigen Termin mit Uhrzeit.')
+                : bookingText('booking.errorStepFinish', 'Bitte schließen Sie zuerst die Demo-Anfrage ab.');
+          showToast(bookingText('booking.errorStepTitle', 'Schritt noch nicht verfügbar'), hint);
         }
       });
     });
@@ -764,7 +889,7 @@ const menuButton = document.getElementById('menuButton');
 
       bookingDate.min = today;
 
-      // Booking demo offers only the next 7 calendar days (today + 6), weekdays only.
+      // Booking demo offers the next 14 calendar days; Sundays are closed.
       bookingDate.max = getMaxBookingDateISO();
 
       leadDate.min = today;
@@ -791,34 +916,34 @@ const menuButton = document.getElementById('menuButton');
 
         valid = false;
 
-        message = showRequiredError ? 'Bitte wählen Sie ein Datum aus.' : '';
+        message = showRequiredError ? bookingText('booking.errorRequiredDate', 'Bitte wählen Sie ein Datum aus.') : '';
 
       } else if (!isFourDigitYearValue(value)) {
 
         valid = false;
 
-        message = 'Bitte verwenden Sie eine vierstellige Jahreszahl.';
+        message = bookingText('booking.errorYear', 'Bitte verwenden Sie eine vierstellige Jahreszahl.');
 
       } else if (value < today) {
 
         valid = false;
 
-        message = 'Ein Termin in der Vergangenheit kann nicht gebucht werden.';
+        message = bookingText('booking.errorDate', 'Bitte wählen Sie einen Öffnungstag innerhalb der nächsten 14 Tage.');
 
       } else if (value > getMaxBookingDateISO()) {
 
         valid = false;
 
-        message = 'Bitte wählen Sie einen Termin innerhalb der nächsten 7 Kalendertage.';
+        message = bookingText('booking.errorDate', 'Bitte wählen Sie einen Öffnungstag innerhalb der nächsten 14 Tage.');
 
       } else {
-        const selectedDate = new Date(`${value}T00:00:00`);
-        if (Number.isNaN(selectedDate.getTime()) || toISODate(selectedDate) !== value) {
+        const selectedDate = new Date(`${value}T12:00:00Z`);
+        if (Number.isNaN(selectedDate.getTime()) || selectedDate.toISOString().slice(0, 10) !== value) {
           valid = false;
-          message = 'Bitte wählen Sie ein gültiges Datum.';
-        } else if (selectedDate.getDay() === 0 || selectedDate.getDay() === 6) {
+          message = window.SELYS_LANG === 'en' ? 'Please choose a valid date.' : 'Bitte wählen Sie ein gültiges Datum.';
+        } else if (selectedDate.getUTCDay() === 0) {
           valid = false;
-          message = 'Demo-Termine sind von Montag bis Freitag verfügbar.';
+          message = bookingText('booking.errorDate', 'Bitte wählen Sie einen Öffnungstag innerhalb der nächsten 14 Tage.');
         }
       }
 
@@ -852,13 +977,13 @@ const menuButton = document.getElementById('menuButton');
 
         valid = false;
 
-        message = 'Bitte verwenden Sie eine vierstellige Jahreszahl.';
+        message = bookingText('booking.errorYear', 'Bitte verwenden Sie eine vierstellige Jahreszahl.');
 
       } else if (value && value < today) {
 
         valid = false;
 
-        message = 'Bitte wählen Sie heute oder ein zukünftiges Datum.';
+        message = bookingText('booking.errorLeadDate', 'Bitte wählen Sie heute oder ein zukünftiges Datum.');
 
       }
 
@@ -878,48 +1003,38 @@ const menuButton = document.getElementById('menuButton');
 
     function refreshTimeButtons() {
       const selectedDate = bookingDate.value;
-      const today = getTodayISO();
-      const currentMinutes = getCurrentMinutes();
+      const container = document.getElementById('bookingTimeSlots');
+      const selectedTime = bookingState.time;
       const dateAllowed = isBookingDateAllowed(selectedDate);
-      const selectedDateObject = dateAllowed ? new Date(`${selectedDate}T00:00:00`) : null;
-      const weekday = selectedDateObject ? selectedDateObject.getDay() : null;
-      const availableForDay = weekday ? (bookingDaySchedule[weekday] || []) : [];
-      let anyAvailable = false;
+      const availableTimes = dateAllowed ? getAvailableTimes(selectedDate) : [];
 
-      timeButtons.forEach(button => {
-        const [hours, minutes] = button.dataset.time.split(':').map(Number);
-        const timeMinutes = hours * 60 + minutes;
-        const isScheduledForDay = availableForDay.includes(button.dataset.time);
-        const isPastToday = selectedDate === today && timeMinutes <= currentMinutes;
-        const shouldDisable = !dateAllowed || !isScheduledForDay || isPastToday;
-
-        button.disabled = shouldDisable;
-        button.setAttribute('aria-disabled', shouldDisable ? 'true' : 'false');
-
-        if (shouldDisable) {
-          button.classList.add('opacity-30', 'cursor-not-allowed', 'line-through');
-          button.classList.remove('selected');
-          if (bookingState.time === button.dataset.time) {
-            bookingState.time = '';
-            bookingState.confirmed = false;
-          }
+      if (container) {
+        if (!bookingState.serviceId) {
+          container.innerHTML = `<p class="text-xs text-muted col-span-full">${bookingText('booking.chooseService', 'Bitte wählen Sie zuerst eine Leistung.')}</p>`;
+        } else if (!selectedDate) {
+          container.innerHTML = `<p class="text-xs text-muted col-span-full">${bookingText('booking.chooseDate', 'Bitte wählen Sie zuerst ein Datum.')}</p>`;
+        } else if (!availableTimes.length) {
+          container.innerHTML = `<p class="text-xs text-muted col-span-full">${bookingText('booking.noTimes', 'Keine passenden Zeiten verfügbar.')}</p>`;
         } else {
-          anyAvailable = true;
-          button.classList.remove('opacity-30', 'cursor-not-allowed', 'line-through');
+          container.innerHTML = availableTimes.map(time => `<button type="button" class="time-option min-h-[48px] border border-black/10 text-sm${time === selectedTime ? ' selected' : ''}" data-time="${time}" aria-pressed="${time === selectedTime ? 'true' : 'false'}">${time}</button>`).join('');
         }
-      });
+      }
+      timeButtons = Array.from(document.querySelectorAll('#bookingTimeSlots .time-option'));
+      if (bookingState.time && !availableTimes.includes(bookingState.time)) {
+        bookingState.time = '';
+        bookingState.confirmed = false;
+      }
 
       const hint = document.getElementById('bookingTimeHint');
       if (hint) {
-        if (!selectedDate) {
-          hint.textContent = 'Bitte wählen Sie zuerst ein Datum. Die verfügbaren Zeiten variieren je Werktag.';
-        } else if (!dateAllowed) {
-          hint.textContent = 'Bitte wählen Sie einen Werktag innerhalb der nächsten 7 Kalendertage.';
-        } else if (!anyAvailable && selectedDate === today) {
-          hint.textContent = 'Für heute sind keine späteren Demo-Zeiten mehr verfügbar. Bitte wählen Sie einen anderen Werktag.';
-        } else {
-          hint.textContent = 'Die angezeigten Zeiten sind unverbindliche Demo-Verfügbarkeiten. Nicht verfügbare Zeiten sind deaktiviert.';
-        }
+        if (!bookingState.serviceId) hint.textContent = bookingText('booking.chooseService', 'Bitte wählen Sie zuerst eine Leistung.');
+        else if (!selectedDate) hint.textContent = bookingText('booking.chooseDate', 'Bitte wählen Sie zuerst ein Datum.');
+        else if (!dateAllowed) hint.textContent = bookingText('booking.errorDate', 'Bitte wählen Sie einen Öffnungstag innerhalb der nächsten 14 Tage.');
+        else if (!availableTimes.length && selectedDate === getTodayISO()) hint.textContent = bookingText('booking.todayNoTimes', 'Für heute sind keine passenden Zeiten mehr verfügbar.');
+        else if (!availableTimes.length) hint.textContent = bookingText('booking.noTimes', 'Keine passenden Zeiten verfügbar.');
+        else hint.textContent = window.SELYS_LANG === 'en'
+          ? 'Times are demo availability based on the selected service and team schedule. A saved demo booking blocks overlapping slots in this browser.'
+          : 'Die Demo-Verfügbarkeit berücksichtigt Leistung, Team-Schicht und bereits gespeicherte Demo-Termine in diesem Browser.';
       }
 
       validateStep3();
@@ -1022,21 +1137,21 @@ const menuButton = document.getElementById('menuButton');
 
       if (!value) {
 
-        if (input.required) message = 'Bitte geben Sie Ihren Namen ein.';
+        if (input.required) message = bookingText('booking.errorNameRequired', 'Bitte geben Sie Ihren Namen ein.');
 
       } else if (value.length < 3) {
 
-        message = 'Der Name muss mindestens 3 Zeichen lang sein.';
+        message = bookingText('booking.errorNameLength', 'Der Name muss mindestens 3 Zeichen lang sein.');
 
       } else if (!LATIN_NAME_RE.test(value)) {
 
-        message = 'Bitte verwenden Sie nur lateinische Buchstaben. Leerzeichen, Bindestrich und Apostroph sind erlaubt.';
+        message = bookingText('booking.errorNameLetters', 'Bitte verwenden Sie nur lateinische Buchstaben. Leerzeichen, Bindestrich und Apostroph sind erlaubt.');
 
       } else {
 
         const letters = Array.from(value).filter(char => LATIN_LETTER_RE.test(char));
 
-        if (letters.length < 3) message = 'Der Name muss mindestens 3 Buchstaben enthalten.';
+        if (letters.length < 3) message = bookingText('booking.errorNameMinLetters', 'Der Name muss mindestens 3 Buchstaben enthalten.');
 
       }
 
@@ -1064,11 +1179,11 @@ const menuButton = document.getElementById('menuButton');
 
       if (!value) {
 
-        if (input.required) message = 'Bitte geben Sie Ihre Telefonnummer ein.';
+        if (input.required) message = bookingText('booking.errorPhoneRequired', 'Bitte geben Sie Ihre Telefonnummer ein.');
 
       } else if (!/^\+?[0-9]+$/.test(value)) {
 
-        message = 'Bitte verwenden Sie nur Ziffern und optional ein Pluszeichen am Anfang (z. B. +49123456789).';
+        message = bookingText('booking.errorPhoneFormat', 'Bitte verwenden Sie nur Ziffern und optional ein Pluszeichen am Anfang (z. B. +49123456789).');
 
       }
 
@@ -1084,11 +1199,11 @@ const menuButton = document.getElementById('menuButton');
 
       if (!value) {
 
-        if (input.required) message = 'Bitte geben Sie Ihre E-Mail-Adresse ein.';
+        if (input.required) message = bookingText('booking.errorEmailRequired', 'Bitte geben Sie Ihre E-Mail-Adresse ein.');
 
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
 
-        message = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
+        message = bookingText('booking.errorEmailFormat', 'Bitte geben Sie eine gültige E-Mail-Adresse ein.');
 
       }
 
@@ -1167,19 +1282,24 @@ const menuButton = document.getElementById('menuButton');
 
 
     document.querySelectorAll('[data-service]').forEach(button => button.addEventListener('click', () => {
-
-      document.querySelectorAll('[data-service]').forEach(x => x.classList.remove('selected'));
-
+      document.querySelectorAll('[data-service]').forEach(item => item.classList.remove('selected'));
       button.classList.add('selected');
-
-      bookingState.service = button.dataset.service;
-
-      bookingState.price = button.dataset.price;
+      const service = BOOKING_DATA?.services?.find(item => item.id === button.dataset.serviceId);
+      if (!service) return;
+      bookingState.serviceId = service.id;
+      bookingState.service = window.SELYS_LANG === 'en' ? service.nameEn : service.name;
+      bookingState.price = service.priceLabel;
+      bookingState.staff = '';
+      bookingState.staffId = '';
+      bookingState.time = '';
       bookingState.confirmed = false;
-
+      document.querySelectorAll('[data-staff]').forEach(item => item.classList.remove('selected'));
+      updateStaffOptions();
+      document.getElementById('bookingHiddenService').value = bookingState.service;
+      document.getElementById('bookingHiddenPrice').value = bookingState.price;
       document.getElementById('nextToStep2').disabled = false;
       updateBookingStepIndicators(currentBookingStep);
-
+      refreshTimeButtons();
     }));
 
 
@@ -1193,17 +1313,19 @@ const menuButton = document.getElementById('menuButton');
 
 
     document.querySelectorAll('[data-staff]').forEach(button => button.addEventListener('click', () => {
-
-      document.querySelectorAll('[data-staff]').forEach(x => x.classList.remove('selected'));
-
+      const service = getSelectedServiceData();
+      const staffId = button.dataset.staffId || '';
+      if (staffId !== 'any' && service && !service.staff.includes(staffId)) return;
+      document.querySelectorAll('[data-staff]').forEach(item => item.classList.remove('selected'));
       button.classList.add('selected');
-
-      bookingState.staff = button.dataset.staff;
+      bookingState.staffId = staffId;
+      bookingState.staff = staffId === 'any' ? bookingText('booking.anyStaff', 'Keine Präferenz') : button.dataset.staff;
       bookingState.confirmed = false;
-
+      bookingState.time = '';
+      document.getElementById('bookingHiddenStaff').value = bookingState.staff;
       document.getElementById('nextToStep3').disabled = false;
+      refreshTimeButtons();
       updateBookingStepIndicators(currentBookingStep);
-
     }));
 
 
@@ -1220,23 +1342,18 @@ const menuButton = document.getElementById('menuButton');
 
 
 
-    timeButtons.forEach(button => button.addEventListener('click', () => {
-
-      if (button.disabled) return;
-
-      document.querySelectorAll('.time-option').forEach(x => x.classList.remove('selected'));
-
+    document.getElementById('bookingTimeSlots').addEventListener('click', event => {
+      const button = event.target.closest('.time-option');
+      if (!button || button.disabled) return;
+      document.querySelectorAll('.time-option').forEach(item => { item.classList.remove('selected'); item.setAttribute('aria-pressed', 'false'); });
       button.classList.add('selected');
-
+      button.setAttribute('aria-pressed', 'true');
       bookingState.time = button.dataset.time;
       bookingState.confirmed = false;
-
       document.getElementById('bookingHiddenTime').value = bookingState.time;
-
       validateStep3();
       updateBookingStepIndicators(currentBookingStep);
-
-    }));
+    });
 
 
 
@@ -1266,7 +1383,7 @@ const menuButton = document.getElementById('menuButton');
 
       if (!validTime) {
 
-        showToast('Uhrzeit auswählen', 'Bitte wählen Sie eine verfügbare Uhrzeit.');
+        showToast(bookingText('booking.errorTimeTitle', 'Uhrzeit auswählen'), bookingText('booking.errorTime', 'Bitte wählen Sie eine verfügbare Uhrzeit.'));
 
         return;
 
@@ -1306,19 +1423,18 @@ const menuButton = document.getElementById('menuButton');
 
       // This is the only action that can unlock navigation after the final confirmation.
       bookingFlowLocked = false;
+      rescheduleReference = '';
       const stepNavigation = document.getElementById('stepIndicator1')?.parentElement;
       if (stepNavigation) stepNavigation.classList.remove('hidden');
 
-      bookingState.service='';
-
-      bookingState.price='';
-
-      bookingState.staff='';
-
-      bookingState.date='';
-
-      bookingState.time='';
-      bookingState.confirmed=false;
+      bookingState.service = '';
+      bookingState.serviceId = '';
+      bookingState.price = '';
+      bookingState.staff = '';
+      bookingState.staffId = '';
+      bookingState.date = '';
+      bookingState.time = '';
+      bookingState.confirmed = false;
 
 
 
@@ -1329,7 +1445,11 @@ const menuButton = document.getElementById('menuButton');
       document.getElementById('nextToStep3').disabled = true;
 
       document.getElementById('nextToStep4').disabled = true;
-
+      ['bookingHiddenService','bookingHiddenPrice','bookingHiddenStaff','bookingHiddenDate','bookingHiddenTime'].forEach(id => {
+        const field = document.getElementById(id);
+        if (field) field.value = '';
+      });
+      updateStaffOptions();
       bookingForm.reset();
 
       setDateLimits();
@@ -1354,6 +1474,7 @@ const menuButton = document.getElementById('menuButton');
       document.getElementById('summaryTime').textContent='';
 
       document.getElementById('summaryContact').textContent='';
+      if (document.getElementById('summaryReference')) document.getElementById('summaryReference').textContent='';
 
 
 
@@ -1365,10 +1486,23 @@ const menuButton = document.getElementById('menuButton');
 
 
       showBookingStep(1);
-
       refreshTimeButtons();
-
+      renderSavedDemoBookings();
     }
+
+    window.refreshSelysBookingUi = () => {
+      const selectedDate = bookingDate.value;
+      bookingDate.min = getTodayISO();
+      bookingDate.max = getMaxBookingDateISO();
+      if (selectedDate) refreshTimeButtons();
+      const service = getSelectedServiceData();
+      if (service) bookingState.service = window.SELYS_LANG === 'en' ? service.nameEn : service.name;
+      const staff = BOOKING_DATA?.staff?.find(item => item.id === bookingState.staffId);
+      if (staff) bookingState.staff = staff.name;
+      updateStaffOptions();
+      renderSavedDemoBookings();
+    };
+    window.addEventListener('selys:demo-reset', () => { renderSavedDemoBookings(); if (!bookingFlowLocked) refreshTimeButtons(); else resetBooking(); });
 
 
 
@@ -1403,15 +1537,12 @@ const menuButton = document.getElementById('menuButton');
       refreshTimeButtons();
 
       const chosenTimeButton = timeButtons.find(button => button.dataset.time === bookingState.time);
-
-      if (!chosenTimeButton || chosenTimeButton.disabled) {
-
+      const availableStaff = getAvailableStaffForSlot(bookingState.date, bookingState.time);
+      if (!chosenTimeButton || !availableStaff.length) {
         showBookingStep(3);
-
-        showToast('Termin nicht verfügbar', 'Die ausgewählte Uhrzeit liegt bereits in der Vergangenheit. Bitte wählen Sie eine andere Uhrzeit.');
-
+        showToast(bookingText('booking.errorSlotTaken', 'Termin nicht verfügbar'), bookingText('booking.errorSlotTaken', 'Dieser Termin ist nicht mehr verfügbar. Bitte wählen Sie eine andere Uhrzeit.'));
+        refreshTimeButtons();
         return;
-
       }
 
 
@@ -1443,7 +1574,7 @@ const menuButton = document.getElementById('menuButton');
 
       }
 
-      if (!validateCheckboxField(privacy, 'Bitte stimmen Sie der Verarbeitung Ihrer Angaben zu.')) {
+      if (!validateCheckboxField(privacy, bookingText('booking.errorPrivacy', 'Bitte stimmen Sie der Verarbeitung Ihrer Angaben zu.'))) {
 
         focusFieldWithError(privacy, privacy.validationMessage);
         return;
@@ -1461,21 +1592,29 @@ const menuButton = document.getElementById('menuButton');
 
 
 
-      const date = new Date(`${bookingState.date}T00:00:00`).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
-
-
-
+      const date = formatSavedBookingDate(bookingState.date);
+      const assignedStaff = availableStaff[0];
+      const serviceData = getSelectedServiceData();
+      const [startHour, startMinute] = bookingState.time.split(':').map(Number);
+      const startMinutes = startHour * 60 + startMinute;
+      const endMinutes = startMinutes + serviceData.duration;
+      const end = `${String(Math.floor(endMinutes / 60)).padStart(2, '0')}:${String(endMinutes % 60).padStart(2, '0')}`;
+      const reference = `DEMO-${new Date().getFullYear()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+      const record = { reference, serviceId: serviceData.id, staffId: assignedStaff.id, date: bookingState.date, start: bookingState.time, end, startMinutes, endMinutes, status: 'demo', createdAt: new Date().toISOString() };
+      if (!saveDemoBooking(record, rescheduleReference)) {
+        showToast('Speicherfehler', bookingText('common.storageError', 'Die Demo-Daten konnten nicht gespeichert werden.'));
+        return;
+      }
+      rescheduleReference = '';
+      renderSavedDemoBookings();
+      bookingState.staffId = assignedStaff.id;
+      bookingState.staff = assignedStaff.name;
       document.getElementById('summaryService').textContent = `${bookingState.service} (${bookingState.price})`;
-
       document.getElementById('summaryStaff').textContent = bookingState.staff;
-
       document.getElementById('summaryDate').textContent = date;
-
-      document.getElementById('summaryTime').textContent = `${bookingState.time} Uhr`;
-
+      document.getElementById('summaryTime').textContent = `${bookingState.time}–${end} Uhr`;
       document.getElementById('summaryContact').textContent = `${name.value.trim()} · ${email.value.trim()} · ${phone.value.trim()}`;
-
-
+      if (document.getElementById('summaryReference')) document.getElementById('summaryReference').textContent = reference;
 
       bookingState.confirmed = true;
       bookingFlowLocked = true;
@@ -1483,7 +1622,7 @@ const menuButton = document.getElementById('menuButton');
       updateBookingStepIndicators(5);
       showBookingStep(5);
 
-      showToast('Demo abgeschlossen','So würde die Terminbestätigung nach der Buchung aussehen.');
+      showToast(bookingText('booking.success', 'Demo abgeschlossen'), bookingText('booking.successToast', 'Ihre Demo-Auswahl wurde lokal gespeichert. Es wurde kein echter Termin übermittelt.'));
 
     });
 
@@ -1549,7 +1688,7 @@ const menuButton = document.getElementById('menuButton');
         return;
       }
 
-      if (!validateCheckboxField(leadPrivacy, 'Bitte stimmen Sie der Verarbeitung Ihrer Angaben zu.')) {
+      if (!validateCheckboxField(leadPrivacy, bookingText('booking.errorPrivacy', 'Bitte stimmen Sie der Verarbeitung Ihrer Angaben zu.'))) {
         focusFieldWithError(leadPrivacy, leadPrivacy.validationMessage);
         return;
       }
@@ -1558,7 +1697,7 @@ const menuButton = document.getElementById('menuButton');
 
       if (!WEB3_ACCESS_KEY) {
 
-        showToast('Web3Forms noch nicht eingerichtet','Bitte tragen Sie den Web3Forms Access Key einmal in config.js ein.');
+        showToast(bookingText('contact.setupTitle', 'Web3Forms noch nicht eingerichtet'), bookingText('contact.setupNote', 'Bitte tragen Sie den Web3Forms Access Key einmal in config.js ein.'));
 
         return;
 
@@ -1566,7 +1705,7 @@ const menuButton = document.getElementById('menuButton');
 
       if (!getCaptchaToken(leadForm)) {
 
-        showToast('hCaptcha fehlt','Bitte lösen Sie zuerst die hCaptcha-Prüfung.');
+        showToast(bookingText('contact.captchaTitle', 'hCaptcha fehlt'), bookingText('contact.captchaNote', 'Bitte lösen Sie zuerst die hCaptcha-Prüfung.'));
 
         return;
 
@@ -1645,13 +1784,13 @@ const menuButton = document.getElementById('menuButton');
 
         leadForm.classList.add('hidden'); formSuccess.classList.remove('hidden');
 
-        showToast('Anfrage gesendet','Vielen Dank! Ihre Demo-Anfrage wurde übermittelt.');
+        showToast(bookingText('contact.sentTitle', 'Anfrage gesendet'), bookingText('contact.sentNote', 'Vielen Dank! Ihre Demo-Anfrage wurde übermittelt.'));
 
       } catch (error) {
 
         console.error('Web3Forms error:', error);
 
-        showToast('Fehler beim Senden', error?.message || 'Bitte versuchen Sie es später erneut.');
+        showToast(bookingText('contact.errorTitle', 'Fehler beim Senden'), error?.message || bookingText('contact.errorNote', 'Bitte versuchen Sie es später erneut.'));
 
       } finally { submitButton.disabled = false; submitButton.textContent = original; }
 
@@ -1660,3 +1799,4 @@ const menuButton = document.getElementById('menuButton');
 
 
     showBookingStep(1);
+    renderSavedDemoBookings();
