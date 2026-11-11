@@ -490,7 +490,8 @@ const menuButton = document.getElementById('menuButton');
       if (whatsappOpener && typeof whatsappOpener.focus === 'function') whatsappOpener.focus();
     }
 
-    document.getElementById('whatsappHero').addEventListener('click', openWhatsAppDemo);
+    [document.getElementById('whatsappHero'), document.getElementById('whatsappFloating')].filter(Boolean).forEach(button => button.addEventListener('click', openWhatsAppDemo));
+    if (window.location.hash === '#whatsapp') openWhatsAppDemo();
     whatsappClose.addEventListener('click', closeWhatsAppDemo);
     whatsappDemo.querySelector('.whatsapp-backdrop').addEventListener('click', closeWhatsAppDemo);
     whatsappDemoForm.addEventListener('submit', event => {

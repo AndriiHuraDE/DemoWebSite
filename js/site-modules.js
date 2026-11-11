@@ -12,6 +12,7 @@
   const imageHTML = (image, cls = '') => `<img class="${cls}" src="${esc(image.src)}" alt="${esc(image.alt)}" loading="lazy" decoding="async">`;
 
   let activeGalleryFilter = 'all';
+  let galleryExpanded = false;
   let activeShopFilter = 'all';
   let activeProductId = null;
   let activeArticleId = null;
@@ -95,12 +96,31 @@
     const host = $('galleryGrid');
     if (!host) return;
     const photos = DATA.gallery.filter(item => activeGalleryFilter === 'all' || item.category === activeGalleryFilter);
-    host.innerHTML = photos.map((item, index) => `<figure class="gallery-item" style="--gallery-delay:${index * 45}ms">${imageHTML(item, 'gallery-photo')}<figcaption>${esc(lang() === 'en' ? item.labelEn : item.label)}</figcaption></figure>`).join('');
+    const visiblePhotos = galleryExpanded ? photos : photos.slice(0, 3);
+    host.innerHTML = visiblePhotos.map((item, index) => `<figure class="gallery-item" style="--gallery-delay:${index * 45}ms">${imageHTML(item, 'gallery-photo')}<figcaption>${esc(lang() === 'en' ? item.labelEn : item.label)}</figcaption></figure>`).join('');
+    const moreButton = $('galleryMoreButton');
+    if (moreButton) {
+      moreButton.hidden = photos.length <= 3;
+      moreButton.textContent = t(galleryExpanded ? 'gallery.showLess' : 'gallery.showMore');
+      moreButton.setAttribute('aria-expanded', String(galleryExpanded));
+    }
     document.querySelectorAll('[data-gallery-filter]').forEach(button => {
       const active = button.dataset.galleryFilter === activeGalleryFilter;
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
+  }
+
+  function renderFeaturedProducts() {
+    const host = $('featuredProducts');
+    if (!host) return;
+    const featured = DATA.products.filter(product => product.featured).slice(0, 3);
+    host.innerHTML = featured.map(product => {
+      const variants = productVariants(product);
+      const lowest = Math.min(...variants.map(item => Number(item.price)));
+      const priceLabel = variants.length > 1 ? `${lang() === 'en' ? 'From ' : 'ab '}${euro(lowest)}` : euro(lowest);
+      return `<article class="featured-product-card"><a class="featured-product-image" href="shop.html?product=${encodeURIComponent(product.id)}" aria-label="${esc(t('shop.details'))}: ${esc(productName(product))}">${imageHTML(product.image, '')}<span class="featured-product-tag">SÉLYS</span></a><div class="featured-product-info"><div><h3>${esc(productName(product))}</h3><p>${esc(productDescription(product))}</p></div><div class="featured-product-bottom"><strong>${priceLabel}</strong><a href="shop.html?product=${encodeURIComponent(product.id)}" class="featured-product-details">${esc(t('shop.details'))} <span aria-hidden="true">↗</span></a></div></div></article>`;
+    }).join('');
   }
 
   function renderInstagram() {
@@ -112,7 +132,7 @@
   function renderReviews() {
     const host = $('reviewsGrid');
     if (!host) return;
-    host.innerHTML = DATA.reviews.map(review => `<article class="review-card"><div class="review-quote-mark" aria-hidden="true">“</div><p class="review-copy">${esc(lang() === 'en' ? review.textEn : review.text)}</p><div class="review-meta"><strong>${esc(review.name)}</strong><span>${esc(lang() === 'en' ? review.serviceEn : review.service)}</span></div><span class="review-demo-label">${lang() === 'en' ? 'Demo example' : 'Demo-Beispiel'}</span></article>`).join('');
+    host.innerHTML = DATA.reviews.map(review => `<article class="google-review-card"><div class="google-review-card-top"><span class="google-review-avatar" aria-hidden="true">${esc(review.name.slice(0, 1))}</span><div class="google-review-author"><strong>${esc(review.name)}</strong><span>${esc(lang() === 'en' ? review.serviceEn : review.service)}</span></div><span class="google-review-g" aria-label="Google">G</span></div><div class="google-review-stars" aria-label="5 out of 5 stars">★★★★★</div><p class="review-copy">${esc(lang() === 'en' ? review.textEn : review.text)}</p><span class="review-demo-label">${lang() === 'en' ? 'Sample review · Demo' : 'Beispielbewertung · Demo'}</span></article>`).join('');
   }
 
   function renderBlog() {
@@ -383,6 +403,7 @@
 
   function renderAll() {
     renderGallery();
+    renderFeaturedProducts();
     renderInstagram();
     renderReviews();
     renderBlog();
@@ -398,7 +419,8 @@
 
   document.addEventListener('click', event => {
     const galleryButton = event.target.closest('[data-gallery-filter]');
-    if (galleryButton) { activeGalleryFilter = galleryButton.dataset.galleryFilter; renderGallery(); return; }
+    if (galleryButton) { activeGalleryFilter = galleryButton.dataset.galleryFilter; galleryExpanded = false; renderGallery(); return; }
+    if (event.target.closest('#galleryMoreButton')) { galleryExpanded = !galleryExpanded; renderGallery(); return; }
     const shopFilter = event.target.closest('[data-shop-filter]');
     if (shopFilter) { activeShopFilter = shopFilter.dataset.shopFilter; renderShop(); return; }
     const addButton = event.target.closest('[data-add-to-cart]');
@@ -500,4 +522,8 @@
   window.SELYS_RENDER_ALL = renderAll;
   window.SELYS_SHOP = { addToCart, getCartLines, getOrders: () => [...orders] };
   renderAll();
+  const requestedProductId = new URLSearchParams(window.location.search).get('product');
+  if (requestedProductId && $('productDialog') && DATA.products.some(product => product.id === requestedProductId)) {
+    openProduct(requestedProductId);
+  }
 })();

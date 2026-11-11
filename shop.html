@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SÉLYS Shop – Demo</title>
+  <meta name="description" content="Entdecken Sie ausgewählte Haarpflege- und Stylingprodukte im SÉLYS Demo-Shop.">
+  <meta name="robots" content="noindex,follow">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="config.js"></script>
+  <script src="js/tailwind-config.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="shop-page">
+  <div class="sticky top-0 z-50 bg-charcoal text-white border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[48px] flex items-center justify-center text-center">
+      <p class="text-[11px] sm:text-xs tracking-[.08em] uppercase font-medium" data-i18n="top.notice">DEMO-WEBSITE – Web Concierge Vorschau für Friseursalons</p>
+    </div>
+  </div>
+  <header class="shop-page-header z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex items-center justify-between py-5">
+        <a href="index.html" class="text-white" aria-label="SÉLYS Startseite">
+          <div class="font-serif text-xl sm:text-2xl tracking-wide">SÉLYS</div>
+          <div class="text-[8px] tracking-[.35em] uppercase text-white/70">Hair &amp; Beauty</div>
+        </a>
+        <div class="hidden md:flex items-center gap-7">
+          <a href="index.html#leistungen" class="text-sm text-white/85 hover:text-white transition" data-i18n="nav.services">Leistungen</a>
+          <a href="index.html#galerie" class="text-sm text-white/85 hover:text-white transition" data-i18n="nav.gallery">Unsere Arbeiten</a>
+          <a href="shop.html" class="text-sm text-goldLight hover:text-white transition" aria-current="page" data-i18n="nav.shop">Shop</a>
+          <a href="index.html#team" class="text-sm text-white/85 hover:text-white transition" data-i18n="nav.team">Team</a>
+          <a href="index.html#booking" class="text-sm text-white/85 hover:text-white transition" data-i18n="nav.booking">Termin buchen</a>
+          <a href="index.html#kontakt" class="inline-flex min-h-[44px] items-center justify-center px-4 border border-white/40 text-sm text-white hover:bg-white hover:text-charcoal transition" data-i18n="nav.contact">Kontakt</a>
+          <button id="languageToggle" type="button" class="language-toggle" aria-label="Switch language">DE</button>
+        </div>
+        <button id="menuButton" type="button" aria-label="Menü öffnen" data-i18n-aria-label="nav.menu" aria-expanded="false" class="md:hidden min-h-[48px] min-w-[48px] flex items-center justify-center border border-white/30 text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </nav>
+      <div id="mobileMenu" class="mobile-menu md:hidden bg-charcoal/95 border border-white/10">
+        <div class="p-4 space-y-1">
+          <a href="index.html#leistungen" class="mobile-link min-h-[48px] flex items-center px-4 text-white" data-i18n="nav.services">Leistungen</a>
+          <a href="index.html#galerie" class="mobile-link min-h-[48px] flex items-center px-4 text-white" data-i18n="nav.gallery">Unsere Arbeiten</a>
+          <a href="shop.html" class="mobile-link min-h-[48px] flex items-center px-4 text-white" aria-current="page" data-i18n="nav.shop">Shop</a>
+          <a href="index.html#team" class="mobile-link min-h-[48px] flex items-center px-4 text-white" data-i18n="nav.team">Team</a>
+          <a href="index.html#booking" class="mobile-link min-h-[48px] flex items-center px-4 text-white" data-i18n="nav.booking">Termin buchen</a>
+          <a href="index.html#kontakt" class="mobile-link min-h-[48px] flex items-center px-4 text-white" data-i18n="nav.contact">Kontakt</a>
+          <button id="languageToggleMobile" type="button" class="language-toggle-mobile">DE / EN</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="shop" class="shop-page-main">
+    <section class="py-16 sm:py-20 lg:py-24 bg-cream">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="shop-page-intro max-w-3xl">
+          <div class="flex items-center gap-4 mb-5"><div class="gold-line"></div><span class="text-xs tracking-[.25em] uppercase text-muted" data-i18n="shop.eyebrow">SÉLYS Shop</span></div>
+          <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl mb-5" data-i18n="shop.title">Pflege für zu Hause.</h1>
+          <p class="text-muted leading-7" data-i18n="shop.description">Entdecken Sie ausgewählte Pflege- und Stylingprodukte. Alle Produkte und Preise sind Teil dieser Demo.</p>
+          <a href="index.html#shop-preview" class="shop-back-link" data-i18n="shop.backToHome">Zurück zur Startseite</a>
+        </div>
+        <div class="shop-toolbar">
+          <label class="shop-search"><span class="sr-only" data-i18n="shop.search">Produkte suchen</span><input id="shopSearch" type="search" placeholder="Produkte suchen …" data-i18n-placeholder="shop.search" autocomplete="off"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg></label>
+          <label class="shop-sort"><span class="sr-only" data-i18n="shop.sort">Sortieren</span><select id="shopSort"><option value="featured" data-i18n="shop.sortFeatured">Empfohlen</option><option value="price-asc" data-i18n="shop.sortPriceAsc">Preis aufsteigend</option><option value="price-desc" data-i18n="shop.sortPriceDesc">Preis absteigend</option></select></label>
+        </div>
+        <div class="shop-filters" id="shopFilters" role="group" aria-label="Produktkategorien">
+          <button class="shop-filter active" type="button" data-shop-filter="all" data-i18n="shop.all">Alle Produkte</button>
+          <button class="shop-filter" type="button" data-shop-filter="cleanse" data-i18n="shop.cleanse">Reinigung</button>
+          <button class="shop-filter" type="button" data-shop-filter="treatment" data-i18n="shop.treatment">Pflege</button>
+          <button class="shop-filter" type="button" data-shop-filter="styling" data-i18n="shop.styling">Styling</button>
+          <button class="shop-filter" type="button" data-shop-filter="sets" data-i18n="shop.sets">Sets</button>
+          <button class="shop-filter" type="button" data-shop-filter="voucher" data-i18n="shop.voucher">Gutscheine</button>
+        </div>
+        <div class="shop-layout">
+          <div id="shopGrid" class="shop-grid" aria-live="polite"></div>
+          <aside class="shop-cart" id="shopCart" aria-labelledby="shopCartTitle">
+            <div class="shop-cart-heading"><div><span class="text-xs uppercase tracking-widest text-gold">SÉLYS</span><h2 id="shopCartTitle" class="font-serif text-2xl" data-i18n="shop.cart">Ihr Warenkorb</h2></div><span class="cart-count" id="cartCount" data-cart-count>0</span></div>
+            <div id="cartItems" class="cart-items"><p class="text-sm text-muted" data-i18n="shop.empty">Ihr Warenkorb ist noch leer.</p></div>
+            <div class="cart-totals"><div><span data-i18n="shop.subtotal">Zwischensumme</span><strong id="cartSubtotal">0,00 €</strong></div><div><span data-i18n="shop.shipping">Versand</span><strong id="cartShipping">—</strong></div><div class="cart-total"><span data-i18n="shop.total">Gesamtsumme</span><strong id="cartTotal">0,00 €</strong></div></div>
+            <p class="cart-shipping-note" id="shippingNote" data-i18n="shop.shippingNote">Ab 60 € versandkostenfrei · Abholung kostenlos.</p>
+            <button id="checkoutOpen" type="button" class="w-full min-h-[52px] bg-charcoal text-white font-semibold text-sm disabled:opacity-30 disabled:cursor-not-allowed" disabled data-i18n="shop.checkout">Zur Kasse</button>
+            <p class="shop-demo-note" data-i18n="shop.demo">DEMO-SHOP · Keine echte Bestellung und keine Zahlung.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="productDialog" class="shop-dialog">
+    <div class="dialog-top"><span class="text-xs uppercase tracking-widest text-gold">SÉLYS Shop · Demo</span><button type="button" class="dialog-close" data-close-dialog="productDialog" aria-label="Schließen">×</button></div>
+    <div id="productDialogContent"></div>
+  </dialog>
+  <dialog id="checkoutDialog" class="shop-dialog checkout-dialog">
+    <div class="dialog-top"><span class="text-xs uppercase tracking-widest text-gold">SÉLYS Shop · Demo Checkout</span><button type="button" class="dialog-close" data-close-dialog="checkoutDialog" aria-label="Schließen">×</button></div>
+    <div id="checkoutFormPanel">
+      <h2 class="font-serif text-3xl mb-2" data-i18n="checkout.title">Bestellung abschließen</h2><p class="text-sm text-muted mb-6" data-i18n="checkout.description">Bitte geben Sie Beispieldaten ein. Es wird keine echte Zahlung ausgelöst.</p>
+      <form id="checkoutForm" class="checkout-form" novalidate>
+        <div class="grid sm:grid-cols-2 gap-4"><label><span data-i18n="checkout.name">Name</span><input id="checkoutName" name="name" required autocomplete="name"></label><label><span data-i18n="checkout.email">E-Mail</span><input id="checkoutEmail" name="email" type="email" required autocomplete="email"></label></div>
+        <label><span data-i18n="checkout.phone">Telefon</span><input id="checkoutPhone" name="phone" type="tel" required autocomplete="tel"></label>
+        <fieldset><legend data-i18n="checkout.fulfilment">Wie möchten Sie Ihre Bestellung erhalten?</legend><label class="checkout-choice"><input type="radio" name="fulfilment" value="pickup" checked> <span data-i18n="checkout.pickup">Im Salon abholen · kostenlos</span></label><label class="checkout-choice"><input type="radio" name="fulfilment" value="shipping"> <span data-i18n="checkout.delivery">Lieferung · 4,90 € (ab 60 € kostenlos)</span></label></fieldset>
+        <div id="shippingAddressFields" class="hidden grid sm:grid-cols-2 gap-4"><label class="sm:col-span-2"><span data-i18n="checkout.street">Straße und Hausnummer</span><input id="checkoutStreet" name="street" autocomplete="street-address"></label><label><span data-i18n="checkout.postal">PLZ</span><input id="checkoutPostal" name="postal" autocomplete="postal-code"></label><label><span data-i18n="checkout.city">Ort</span><input id="checkoutCity" name="city" autocomplete="address-level2"></label></div>
+        <fieldset><legend data-i18n="checkout.payment">Zahlungsart (Demo)</legend><label class="checkout-choice"><input type="radio" name="payment" value="pickup" checked> <span data-i18n="checkout.payOnPickup">Vor Ort bezahlen</span></label><label class="checkout-choice"><input type="radio" name="payment" value="demo"> <span data-i18n="checkout.simulate">Demo-Zahlung simulieren</span></label><p class="text-xs text-muted" data-i18n="checkout.noCard">Keine Kartendaten eingeben. Es wird kein Geld eingezogen.</p></fieldset>
+        <label class="checkout-consent"><input id="checkoutConsent" type="checkbox" required> <span data-i18n="checkout.consent">Ich habe die Demo- und Datenschutzinformationen gelesen.</span></label>
+        <div class="checkout-summary" id="checkoutSummary"></div>
+        <button class="w-full min-h-[52px] bg-charcoal text-white font-semibold" type="submit" data-i18n="checkout.submit">Demo-Bestellung abschließen</button>
+      </form>
+    </div>
+    <div id="orderSuccess" class="hidden text-center py-8"><div class="success-mark">✓</div><h2 class="font-serif text-3xl mb-3" data-i18n="checkout.thanks">Vielen Dank!</h2><p class="text-muted mb-5" data-i18n="checkout.success">Ihre Demo-Bestellung wurde lokal gespeichert. Es wurde kein Geld eingezogen.</p><p class="text-sm"><span data-i18n="checkout.orderNumber">Bestellnummer:</span> <strong id="orderReference"></strong></p><button type="button" id="orderContinue" class="mt-7 min-h-[50px] px-7 bg-charcoal text-white" data-i18n="shop.continue">Weiter einkaufen</button></div>
+  </dialog>
+
+  <footer class="bg-charcoal text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="footer-main py-10">
+        <div class="footer-brand text-center sm:text-left"><div class="font-serif text-xl tracking-wide">SÉLYS</div><div class="text-[8px] tracking-[.35em] uppercase text-white/40 mt-1">Hair &amp; Beauty</div></div>
+        <div class="footer-socials" aria-label="Social Media">
+          <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram · Demo-Link ersetzen" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" class="fill-current"/></svg></a>
+          <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook · Demo-Link ersetzen" title="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.5 1.6-1.5h1.7V3.9c-.3 0-1.4-.1-2.6-.1-2.6 0-4.3 1.6-4.3 4.5V10H7v3h2.9v8h3.6Z"/></svg></a>
+          <a href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer" aria-label="TikTok · Demo-Link ersetzen" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.2 3h3.1c.2 2 1.3 3.5 3.7 3.8v3.2a9 9 0 0 1-3.7-1.1v6.8a6.4 6.4 0 1 1-6.4-6.4c.4 0 .8 0 1.1.1v3.4a3.2 3.2 0 1 0 2.2 3V3Z"/></svg></a>
+          <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn · Demo-Link ersetzen" title="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.2 3.4a2.2 2.2 0 1 1 0 4.4 2.2 2.2 0 0 1 0-4.4ZM3.3 9.3h3.8v11.4H3.3V9.3Zm6.2 0h3.6v1.6h.1c.5-.9 1.7-1.9 3.5-1.9 3.8 0 4.5 2.5 4.5 5.7v6h-3.8v-5.3c0-1.3 0-3-1.9-3s-2.2 1.4-2.2 2.9v5.4H9.5V9.3Z"/></svg></a>
+        </div>
+        <div class="footer-links flex flex-wrap justify-center gap-x-6 gap-y-3 text-xs text-white/50"><a href="index.html#shop-preview" class="hover:text-white transition" data-i18n="footer.home">Startseite</a><a href="datenschutz.html" class="hover:text-white transition" data-i18n="footer.privacy">Datenschutz</a><a href="impressum.html" class="hover:text-white transition" data-i18n="footer.imprint">Impressum</a><button id="resetDemoData" type="button" class="hover:text-white transition" data-i18n="footer.demoReset">Demo-Daten zurücksetzen</button></div>
+      </div>
+      <div class="border-t border-white/10 py-6 text-center"><p class="text-xs text-white/35" data-i18n="footer.rights">pimentaGROUP Web Concierge · Demo-Website</p></div>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast fixed bottom-5 left-4 right-4 sm:left-auto sm:right-5 sm:max-w-sm z-[100]"><div class="bg-charcoal text-white shadow-luxury p-4 border border-white/10"><div class="flex gap-3 items-start"><div class="text-goldLight mt-0.5">✓</div><div><div id="toastTitle" class="font-semibold text-sm"></div><div id="toastText" class="text-xs text-white/60 mt-1"></div></div></div></div></div>
+  <a class="whatsapp-floating" href="index.html#whatsapp" aria-label="WhatsApp-Demo öffnen" data-i18n-aria-label="whatsapp.floating" title="WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.07 0C5.5 0 .16 5.34.16 11.91c0 2.1.55 4.16 1.6 5.97L0 24l6.28-1.65a11.9 11.9 0 0 0 5.78 1.48h.01c6.57 0 11.91-5.34 11.91-11.91 0-3.18-1.24-6.17-3.46-8.44ZM12.07 21.8a9.9 9.9 0 0 1-5.04-1.38l-.36-.21-3.73.98.99-3.64-.23-.37a9.88 9.88 0 0 1-1.52-5.27c0-5.46 4.44-9.9 9.9-9.9a9.84 9.84 0 0 1 7.01 2.91 9.84 9.84 0 0 1 2.9 7c0 5.46-4.44 9.9-9.9 9.9Zm5.43-7.41c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.61.13-.13.3-.35.44-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.49s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.69.25-1.29.17-1.42-.07-.12-.27-.2-.57-.35Z"/></svg></a>
+
+  <script>
+    const menuButton = document.getElementById('menuButton');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (menuButton && mobileMenu) {
+      menuButton.addEventListener('click', () => { const open = mobileMenu.classList.toggle('open'); menuButton.setAttribute('aria-expanded', String(open)); });
+      document.querySelectorAll('.mobile-link').forEach(link => link.addEventListener('click', () => { mobileMenu.classList.remove('open'); menuButton.setAttribute('aria-expanded', 'false'); }));
+    }
+  </script>
+  <script src="js/site-data.js"></script>
+  <script src="js/site-modules.js"></script>
+  <script src="js/language.js"></script>
+</body>
+</html>
