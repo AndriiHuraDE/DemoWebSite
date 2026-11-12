@@ -14,6 +14,8 @@
   let activeGalleryFilter = 'all';
   let galleryExpanded = false;
   let activeShopFilter = 'all';
+  let activeShopPage = 1;
+  const SHOP_PAGE_SIZE = 6;
   let activeProductId = null;
   let activeArticleId = null;
   let newsletterSubmitted = false;
@@ -111,16 +113,37 @@
     });
   }
 
+  function productBadgeLabel(product) {
+    return product.badge ? t(`shop.badge.${product.badge}`) : productCategoryLabel(product.category);
+  }
+  function lowestProductPrice(product) {
+    return Math.min(...productVariants(product).map(item => Number(item.price) || 0));
+  }
+  function productPriceLabel(product) {
+    const variants = productVariants(product);
+    const lowest = lowestProductPrice(product);
+    return variants.length > 1 ? `${lang() === 'en' ? 'From ' : 'ab '}${euro(lowest)}` : euro(lowest);
+  }
   function renderFeaturedProducts() {
     const host = $('featuredProducts');
     if (!host) return;
-    const featured = DATA.products.filter(product => product.featured).slice(0, 3);
-    host.innerHTML = featured.map(product => {
-      const variants = productVariants(product);
-      const lowest = Math.min(...variants.map(item => Number(item.price)));
-      const priceLabel = variants.length > 1 ? `${lang() === 'en' ? 'From ' : 'ab '}${euro(lowest)}` : euro(lowest);
-      return `<article class="featured-product-card"><a class="featured-product-image" href="shop.html?product=${encodeURIComponent(product.id)}" aria-label="${esc(t('shop.details'))}: ${esc(productName(product))}">${imageHTML(product.image, '')}<span class="featured-product-tag">SÉLYS</span></a><div class="featured-product-info"><div><h3>${esc(productName(product))}</h3><p>${esc(productDescription(product))}</p></div><div class="featured-product-bottom"><strong>${priceLabel}</strong><a href="shop.html?product=${encodeURIComponent(product.id)}" class="featured-product-details">${esc(t('shop.details'))} <span aria-hidden="true">↗</span></a></div></div></article>`;
-    }).join('');
+    const featured = DATA.products.filter(product => product.featured).slice(0, 4);
+    host.innerHTML = featured.map(product => `
+      <article class="featured-product-card">
+        <a class="featured-product-image" href="shop.html?product=${encodeURIComponent(product.id)}&amp;details=1" aria-label="${esc(t('shop.details'))}: ${esc(productName(product))}">
+          ${imageHTML(product.image, '')}<span class="featured-product-tag">${esc(productBadgeLabel(product))}</span>
+        </a>
+        <div class="featured-product-info">
+          <div class="featured-product-copy"><h3>${esc(productName(product))}</h3><p>${esc(productDescription(product))}</p></div>
+          <div class="featured-product-bottom">
+            <strong>${productPriceLabel(product)}</strong>
+            <div class="featured-product-actions">
+              <a href="shop.html?product=${encodeURIComponent(product.id)}&amp;buy=1" class="featured-product-buy">${esc(t('shop.buy'))}</a>
+              <a href="shop.html?product=${encodeURIComponent(product.id)}&amp;details=1" class="featured-product-details">${esc(t('shop.details'))}</a>
+            </div>
+          </div>
+        </div>
+      </article>`).join('');
   }
 
   function renderInstagram() {
@@ -155,28 +178,60 @@
       return matchesCategory && (!search || haystack.includes(search));
     });
     const sort = $('shopSort')?.value || 'featured';
-    if (sort === 'price-asc') results = [...results].sort((a, b) => a.price - b.price);
-    else if (sort === 'price-desc') results = [...results].sort((a, b) => b.price - a.price);
-    else results = [...results].sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
+    if (sort === 'price-asc') results = [...results].sort((a, b) => lowestProductPrice(a) - lowestProductPrice(b));
+    else if (sort === 'price-desc') results = [...results].sort((a, b) => lowestProductPrice(b) - lowestProductPrice(a));
+    else results = [...results].sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)) || productName(a).localeCompare(productName(b)));
     return results;
+  }
+
+  function renderShopPagination(totalItems, totalPages, startItem, endItem) {
+    const host = $('shopPagination');
+    if (!host) return;
+    if (!totalItems) { host.innerHTML = ''; return; }
+    const summary = lang() === 'en'
+      ? `Showing ${startItem}–${endItem} of ${totalItems} products`
+      : `Produkte ${startItem}–${endItem} von ${totalItems}`;
+    const pageLabel = lang() === 'en' ? 'Page' : 'Seite';
+    const ofLabel = lang() === 'en' ? 'of' : 'von';
+    host.innerHTML = `
+      <p class="shop-pagination-summary">${esc(summary)}</p>
+      <nav class="shop-pagination-controls" aria-label="${lang() === 'en' ? 'Product pages' : 'Produktseiten'}">
+        <button type="button" class="shop-page-button" data-shop-page="${activeShopPage - 1}" ${activeShopPage <= 1 ? 'disabled' : ''}>← ${esc(t('shop.pagination.previous'))}</button>
+        <span class="shop-page-indicator">${pageLabel} <strong>${activeShopPage}</strong> ${ofLabel} ${totalPages}</span>
+        <button type="button" class="shop-page-button" data-shop-page="${activeShopPage + 1}" ${activeShopPage >= totalPages ? 'disabled' : ''}>${esc(t('shop.pagination.next'))} →</button>
+      </nav>`;
   }
 
   function renderShop() {
     const host = $('shopGrid');
     if (!host) return;
     const products = filteredProducts();
-    host.innerHTML = products.length ? products.map(product => {
+    const totalPages = Math.max(1, Math.ceil(products.length / SHOP_PAGE_SIZE));
+    activeShopPage = Math.max(1, Math.min(activeShopPage, totalPages));
+    const startIndex = (activeShopPage - 1) * SHOP_PAGE_SIZE;
+    const pageProducts = products.slice(startIndex, startIndex + SHOP_PAGE_SIZE);
+    host.innerHTML = pageProducts.length ? pageProducts.map(product => {
       const variants = productVariants(product);
-      const lowest = Math.min(...variants.map(item => Number(item.price)));
-      const priceLabel = variants.length > 1 ? `${lang() === 'en' ? 'From ' : 'ab '}${euro(lowest)}` : euro(lowest);
       const sizeLabel = variants.length > 1
         ? (lang() === 'en' ? 'Multiple sizes / values' : 'Mehrere Größen / Werte')
         : (lang() === 'en' ? (variants[0].labelEn || variants[0].label) : variants[0].label);
       return `<article class="shop-product-card">
-      <button type="button" class="shop-product-image" data-product-details="${esc(product.id)}" aria-label="${esc(t('shop.details'))}: ${esc(productName(product))}">${imageHTML(product.image, '')}<span class="shop-image-tag">${product.category === 'voucher' ? (lang() === 'en' ? 'Gift' : 'Gutschein') : 'SÉLYS'}</span></button>
-      <div class="shop-product-info"><div class="shop-product-title-row"><h3>${esc(productName(product))}</h3><strong>${priceLabel}</strong></div><p>${esc(productDescription(product))}</p><div class="shop-product-foot"><span>${esc(sizeLabel)}</span><button type="button" class="shop-add-button" data-product-details="${esc(product.id)}">${esc(t('shop.details'))}</button></div></div>
-    </article>`;
+        <button type="button" class="shop-product-image" data-product-details="${esc(product.id)}" aria-label="${esc(t('shop.details'))}: ${esc(productName(product))}">
+          ${imageHTML(product.image, '')}<span class="shop-image-tag">${esc(productBadgeLabel(product))}</span>
+        </button>
+        <div class="shop-product-info">
+          <div class="shop-product-title-row"><h3>${esc(productName(product))}</h3><strong>${productPriceLabel(product)}</strong></div>
+          <p>${esc(productDescription(product))}</p>
+          <div class="shop-product-foot"><span>${esc(sizeLabel)}</span>
+            <div class="shop-product-actions">
+              <button type="button" class="shop-add-button" data-add-to-cart="${esc(product.id)}">${esc(t('shop.add'))}</button>
+              <button type="button" class="shop-details-button" data-product-details="${esc(product.id)}">${esc(t('shop.details'))}</button>
+            </div>
+          </div>
+        </div>
+      </article>`;
     }).join('') : `<p class="text-sm text-muted col-span-full">${lang() === 'en' ? 'No products match your search.' : 'Keine Produkte gefunden.'}</p>`;
+    renderShopPagination(products.length, totalPages, products.length ? startIndex + 1 : 0, Math.min(startIndex + SHOP_PAGE_SIZE, products.length));
     document.querySelectorAll('[data-shop-filter]').forEach(button => {
       const active = button.dataset.shopFilter === activeShopFilter;
       button.classList.toggle('active', active);
@@ -422,7 +477,9 @@
     if (galleryButton) { activeGalleryFilter = galleryButton.dataset.galleryFilter; galleryExpanded = false; renderGallery(); return; }
     if (event.target.closest('#galleryMoreButton')) { galleryExpanded = !galleryExpanded; renderGallery(); return; }
     const shopFilter = event.target.closest('[data-shop-filter]');
-    if (shopFilter) { activeShopFilter = shopFilter.dataset.shopFilter; renderShop(); return; }
+    if (shopFilter) { activeShopFilter = shopFilter.dataset.shopFilter; activeShopPage = 1; renderShop(); return; }
+    const pageButton = event.target.closest('[data-shop-page]');
+    if (pageButton && !pageButton.disabled) { activeShopPage = Math.max(1, Number(pageButton.dataset.shopPage) || 1); renderShop(); $('shopGrid')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
     const addButton = event.target.closest('[data-add-to-cart]');
     if (addButton) { addToCart(addButton.dataset.addToCart); return; }
     const detailsButton = event.target.closest('[data-product-details]');
@@ -467,8 +524,8 @@
     }
   });
 
-  $('shopSearch')?.addEventListener('input', renderShop);
-  $('shopSort')?.addEventListener('change', renderShop);
+  $('shopSearch')?.addEventListener('input', () => { activeShopPage = 1; renderShop(); });
+  $('shopSort')?.addEventListener('change', () => { activeShopPage = 1; renderShop(); });
   $('checkoutOpen')?.addEventListener('click', () => {
     if (!getCartLines().length) return;
     $('checkoutFormPanel').classList.remove('hidden');
@@ -522,8 +579,16 @@
   window.SELYS_RENDER_ALL = renderAll;
   window.SELYS_SHOP = { addToCart, getCartLines, getOrders: () => [...orders] };
   renderAll();
-  const requestedProductId = new URLSearchParams(window.location.search).get('product');
-  if (requestedProductId && $('productDialog') && DATA.products.some(product => product.id === requestedProductId)) {
+  const pageParams = new URLSearchParams(window.location.search);
+  const requestedProductId = pageParams.get('product');
+  if (requestedProductId && DATA.products.some(product => product.id === requestedProductId)) {
+    // Both homepage actions lead into the shop with the selected product opened.
+    // The visitor can choose a size/value before adding variants to the cart.
     openProduct(requestedProductId);
+    pageParams.delete('buy');
+    pageParams.delete('details');
+    pageParams.delete('product');
+    const cleanUrl = `${window.location.pathname}${pageParams.toString() ? `?${pageParams}` : ''}${window.location.hash}`;
+    window.history.replaceState({}, '', cleanUrl);
   }
 })();

@@ -35,8 +35,12 @@ The external stock images below are requested from `images.pexels.com` using Pex
 | 19664873 | Shop — styling cream | https://images.pexels.com/photos/19664873/pexels-photo-19664873.jpeg | Kawê Rodrigues · https://www.pexels.com/photo/haircare-creams-in-glass-jars-on-shelves-in-barbershop-19664873/ |
 | 3736314 | Shop — care set | https://images.pexels.com/photos/3736314/pexels-photo-3736314.jpeg | NOT RECORDED — verify exact source page |
 | 8468019 | Shop — gift voucher artwork | https://images.pexels.com/photos/8468019/pexels-photo-8468019.jpeg | NOT RECORDED — verify exact source page |
+| 8467974 | Shop — Braid & Scalp Care | https://images.pexels.com/photos/8467974/pexels-photo-8467974.jpeg | Nataliya Vaitkevich · https://www.pexels.com/photo/a-braided-hair-with-ribbon-on-white-textile-beside-a-brush-and-bottles-8467974/ |
+| 17576518 | Shop — Daily Wash Duo | https://images.pexels.com/photos/17576518/pexels-photo-17576518.jpeg | Doğu Tuncer · https://www.pexels.com/photo/display-hair-cosmetics-17576518/ |
+| 13573918 | Shop — Repair Serum | https://images.pexels.com/photos/13573918/pexels-photo-13573918.jpeg | by Natallia · https://www.pexels.com/photo/bottles-of-shampoo-and-conditioner-13573918/ |
+| 8468166 | Shop — Styling Essentials | https://images.pexels.com/photos/8468166/pexels-photo-8468166.jpeg | Nataliya Vaitkevich · https://www.pexels.com/photo/black-hair-comb-on-the-table-8468166/ |
 
-All 20 Pexels IDs above are unique in the current `site-data.js` source and are assigned once in the gallery, Instagram preview, blog or shop data.
+All 24 Pexels IDs above are unique in the current `site-data.js` source and are assigned once in the gallery, Instagram preview, blog or shop data.
 
 ## Local supplied photographs
 

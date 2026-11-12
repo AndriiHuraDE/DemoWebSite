@@ -76,7 +76,10 @@
           <button class="shop-filter" type="button" data-shop-filter="voucher" data-i18n="shop.voucher">Gutscheine</button>
         </div>
         <div class="shop-layout">
-          <div id="shopGrid" class="shop-grid" aria-live="polite"></div>
+          <div class="shop-products-column">
+            <div id="shopGrid" class="shop-grid" aria-live="polite"></div>
+            <div id="shopPagination" class="shop-pagination" aria-label="Shop pages"></div>
+          </div>
           <aside class="shop-cart" id="shopCart" aria-labelledby="shopCartTitle">
             <div class="shop-cart-heading"><div><span class="text-xs uppercase tracking-widest text-gold">SÉLYS</span><h2 id="shopCartTitle" class="font-serif text-2xl" data-i18n="shop.cart">Ihr Warenkorb</h2></div><span class="cart-count" id="cartCount" data-cart-count>0</span></div>
             <div id="cartItems" class="cart-items"><p class="text-sm text-muted" data-i18n="shop.empty">Ihr Warenkorb ist noch leer.</p></div>
@@ -112,6 +115,10 @@
     <div id="orderSuccess" class="hidden text-center py-8"><div class="success-mark">✓</div><h2 class="font-serif text-3xl mb-3" data-i18n="checkout.thanks">Vielen Dank!</h2><p class="text-muted mb-5" data-i18n="checkout.success">Ihre Demo-Bestellung wurde lokal gespeichert. Es wurde kein Geld eingezogen.</p><p class="text-sm"><span data-i18n="checkout.orderNumber">Bestellnummer:</span> <strong id="orderReference"></strong></p><button type="button" id="orderContinue" class="mt-7 min-h-[50px] px-7 bg-charcoal text-white" data-i18n="shop.continue">Weiter einkaufen</button></div>
   </dialog>
 
+  <button id="backToTopShop" type="button" aria-label="Nach oben" title="Nach oben" class="back-to-top" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"></path><path d="m6 11 6-6 6 6"></path></svg>
+  </button>
+
   <footer class="bg-charcoal text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="footer-main py-10">
@@ -138,6 +145,15 @@
       menuButton.addEventListener('click', () => { const open = mobileMenu.classList.toggle('open'); menuButton.setAttribute('aria-expanded', String(open)); });
       document.querySelectorAll('.mobile-link').forEach(link => link.addEventListener('click', () => { mobileMenu.classList.remove('open'); menuButton.setAttribute('aria-expanded', 'false'); }));
     }
+    const backToTopShop = document.getElementById('backToTopShop');
+    const updateBackToTopShop = () => {
+      const visible = window.scrollY > 300;
+      backToTopShop?.classList.toggle('show', visible);
+      backToTopShop?.setAttribute('aria-hidden', visible ? 'false' : 'true');
+    };
+    window.addEventListener('scroll', updateBackToTopShop, { passive: true });
+    updateBackToTopShop();
+    backToTopShop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   </script>
   <script src="js/site-data.js"></script>
   <script src="js/site-modules.js"></script>
