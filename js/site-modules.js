@@ -17,7 +17,6 @@
   let activeShopPage = 1;
   const SHOP_PAGE_SIZE = 6;
   let activeProductId = null;
-  let activeArticleId = null;
   let newsletterSubmitted = false;
   let cart = normalizeCart(readJSON('selys-demo-cart', {}));
   let orders = readJSON('selys-demo-orders', []);
@@ -149,7 +148,7 @@
   function renderInstagram() {
     const host = $('instagramPreview');
     if (!host) return;
-    host.innerHTML = DATA.instagram.map((item, index) => `<a class="instagram-tile" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="${esc(lang() === 'en' ? `Instagram demo image ${index + 1}` : `Instagram Demo-Bild ${index + 1}`)}">${imageHTML(item, '')}<span class="instagram-tile-overlay" aria-hidden="true"><span>◎</span></span></a>`).join('');
+    host.innerHTML = DATA.instagram.map((item, index) => `<a class="instagram-tile" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="${esc(lang() === 'en' ? `Instagram demo image ${index + 1}` : `Instagram Demo-Bild ${index + 1}`)}">${imageHTML(item, '')}<span class="instagram-tile-overlay" aria-hidden="true"><svg class="instagram-brand-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" class="instagram-brand-dot"/></svg></span></a>`).join('');
   }
 
   function renderReviews() {
@@ -158,11 +157,6 @@
     host.innerHTML = DATA.reviews.map(review => `<article class="google-review-card"><div class="google-review-card-top"><span class="google-review-avatar" aria-hidden="true">${esc(review.name.slice(0, 1))}</span><div class="google-review-author"><strong>${esc(review.name)}</strong><span>${esc(lang() === 'en' ? review.serviceEn : review.service)}</span></div><span class="google-review-g" aria-label="Google">G</span></div><div class="google-review-stars" aria-label="5 out of 5 stars">★★★★★</div><p class="review-copy">${esc(lang() === 'en' ? review.textEn : review.text)}</p><span class="review-demo-label">${lang() === 'en' ? 'Sample review · Demo' : 'Beispielbewertung · Demo'}</span></article>`).join('');
   }
 
-  function renderBlog() {
-    const host = $('blogGrid');
-    if (!host) return;
-    host.innerHTML = DATA.blog.map(article => `<article class="blog-card"><a href="#journal" class="blog-image-link" data-open-article="${esc(article.id)}">${imageHTML(article.image, 'blog-image')}</a><div class="blog-card-body"><div class="blog-meta"><span>${esc(lang() === 'en' ? (article.categoryEn || article.category) : article.category)}</span><span>${esc(article.date)}</span></div><h3>${esc(lang() === 'en' ? article.titleEn : article.title)}</h3><p>${esc(lang() === 'en' ? article.excerptEn : article.excerpt)}</p><button type="button" class="text-link" data-open-article="${esc(article.id)}">${esc(t('blog.read'))} <span aria-hidden="true">↗</span></button></div></article>`).join('');
-  }
 
   function renderFAQ() {
     const host = $('faqList');
@@ -374,12 +368,6 @@
     if (!$('productDialog').open) $('productDialog').showModal();
   }
 
-  function renderArticleDialog(id) {
-    const article = DATA.blog.find(item => item.id === id);
-    if (!article) return;
-    activeArticleId = id;
-    $('articleDialogContent').innerHTML = `<article class="article-detail">${imageHTML(article.image, 'article-detail-image')}<div class="blog-meta"><span>${esc(lang() === 'en' ? (article.categoryEn || article.category) : article.category)}</span><span>${esc(article.date)}</span></div><h2 class="font-serif text-3xl sm:text-4xl mt-3 mb-5">${esc(lang() === 'en' ? article.titleEn : article.title)}</h2><p class="text-muted leading-8">${esc(lang() === 'en' ? article.bodyEn : article.body)}</p></article>`;
-  }
 
   function renderNewsletterMessage() {
     if (!$('newsletterMessage') || !newsletterSubmitted) return;
@@ -461,7 +449,6 @@
     renderFeaturedProducts();
     renderInstagram();
     renderReviews();
-    renderBlog();
     renderFAQ();
     renderShop();
     renderCart();
@@ -469,7 +456,6 @@
     if (activeProductId && $('productDialog')?.open) {
       renderProductDialog(activeProductId, $('productVariant')?.value || '', $('productQuantity')?.value || 1);
     }
-    if (activeArticleId && $('articleDialog')?.open) renderArticleDialog(activeArticleId);
   }
 
   document.addEventListener('click', event => {
@@ -499,13 +485,6 @@
       delete cart[removeButton.dataset.cartRemove];
       if (!writeJSON('selys-demo-cart', cart)) cart = previous;
       renderCart(); return;
-    }
-    const articleButton = event.target.closest('[data-open-article]');
-    if (articleButton) {
-      event.preventDefault();
-      renderArticleDialog(articleButton.dataset.openArticle);
-      if (!$('articleDialog').open) $('articleDialog').showModal();
-      return;
     }
     const bookServiceButton = event.target.closest('[data-book-service]');
     if (bookServiceButton) {

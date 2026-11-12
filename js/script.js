@@ -272,7 +272,7 @@ const menuButton = document.getElementById('menuButton');
         staff: salonData?.staff || [],
         selectedStaffId: whatsappState.staff?.id || '',
         date: dateISO,
-        bookings: getDemoBookings(),
+        bookings: getAvailabilityBookings(),
         todayISO: getTodayISO(),
         currentMinutes: getCurrentMinutes()
       });
@@ -626,6 +626,16 @@ const menuButton = document.getElementById('menuButton');
       } catch (_) { return []; }
     }
 
+    function getAvailabilityBookings() {
+      const dates = [];
+      for (let offset = 0; offset < 14; offset++) {
+        const date = getBerlinISODate(offset);
+        if (getBerlinWeekday(date) !== 0) dates.push(date);
+      }
+      const sampleBookings = window.SELYS_BOOKING_ENGINE.buildDemoAvailabilityBookings({ staff: BOOKING_DATA?.staff || [], dates });
+      return [...sampleBookings, ...getDemoBookings()];
+    }
+
     function saveDemoBooking(booking, replaceReference = '') {
       const bookings = getDemoBookings();
       if (replaceReference) {
@@ -767,7 +777,7 @@ const menuButton = document.getElementById('menuButton');
         date,
         startMinutes,
         duration: endMinutes - startMinutes,
-        bookings: getDemoBookings(),
+        bookings: getAvailabilityBookings(),
         todayISO: getTodayISO(),
         currentMinutes: getCurrentMinutes()
       });
@@ -776,7 +786,7 @@ const menuButton = document.getElementById('menuButton');
     function isStaffAvailable(member, date, startMinutes, duration) {
       return window.SELYS_BOOKING_ENGINE.isStaffAvailable({
         member, date, startMinutes, duration,
-        bookings: getDemoBookings(),
+        bookings: getAvailabilityBookings(),
         todayISO: getTodayISO(),
         currentMinutes: getCurrentMinutes()
       });
@@ -786,7 +796,15 @@ const menuButton = document.getElementById('menuButton');
       return window.SELYS_BOOKING_ENGINE.getAvailableStaffForSlot({
         service: getSelectedServiceData(), staff: BOOKING_DATA?.staff || [],
         selectedStaffId: bookingState.staffId, date, time,
-        bookings: getDemoBookings(), todayISO: getTodayISO(), currentMinutes: getCurrentMinutes()
+        bookings: getAvailabilityBookings(), todayISO: getTodayISO(), currentMinutes: getCurrentMinutes()
+      });
+    }
+
+    function getCandidateTimes(date) {
+      const service = getSelectedServiceData();
+      if (!service || !isBookingDateAllowed(date)) return [];
+      return window.SELYS_BOOKING_ENGINE.getCandidateTimes({
+        service, staff: BOOKING_DATA?.staff || [], selectedStaffId: bookingState.staffId, date
       });
     }
 
@@ -795,7 +813,7 @@ const menuButton = document.getElementById('menuButton');
       if (!service || !isBookingDateAllowed(date)) return [];
       return window.SELYS_BOOKING_ENGINE.getAvailableTimes({
         service, staff: BOOKING_DATA?.staff || [], selectedStaffId: bookingState.staffId,
-        date, bookings: getDemoBookings(), todayISO: getTodayISO(), currentMinutes: getCurrentMinutes()
+        date, bookings: getAvailabilityBookings(), todayISO: getTodayISO(), currentMinutes: getCurrentMinutes()
       });
     }
 
@@ -1007,23 +1025,29 @@ const menuButton = document.getElementById('menuButton');
       const container = document.getElementById('bookingTimeSlots');
       const selectedTime = bookingState.time;
       const dateAllowed = isBookingDateAllowed(selectedDate);
+      const candidateTimes = dateAllowed ? getCandidateTimes(selectedDate) : [];
       const availableTimes = dateAllowed ? getAvailableTimes(selectedDate) : [];
+      const availableSet = new Set(availableTimes);
+      const blockedCount = Math.max(0, candidateTimes.length - availableTimes.length);
 
       if (container) {
-        if (!bookingState.serviceId) {
-          container.innerHTML = `<p class="text-xs text-muted col-span-full">${bookingText('booking.chooseService', 'Bitte wählen Sie zuerst eine Leistung.')}</p>`;
-        } else if (!selectedDate) {
-          container.innerHTML = `<p class="text-xs text-muted col-span-full">${bookingText('booking.chooseDate', 'Bitte wählen Sie zuerst ein Datum.')}</p>`;
-        } else if (!availableTimes.length) {
-          container.innerHTML = `<p class="text-xs text-muted col-span-full">${bookingText('booking.noTimes', 'Keine passenden Zeiten verfügbar.')}</p>`;
+        if (!bookingState.serviceId || !selectedDate || !dateAllowed || !candidateTimes.length) {
+          container.innerHTML = '';
         } else {
-          container.innerHTML = availableTimes.map(time => `<button type="button" class="time-option min-h-[48px] border border-black/10 text-sm${time === selectedTime ? ' selected' : ''}" data-time="${time}" aria-pressed="${time === selectedTime ? 'true' : 'false'}">${time}</button>`).join('');
+          const bookedLabel = window.SELYS_LANG === 'en' ? 'Not available in this demo' : 'In dieser Demo nicht verfügbar';
+          container.innerHTML = candidateTimes.map(time => {
+            const available = availableSet.has(time);
+            const selected = available && time === selectedTime;
+            const unavailableAttrs = available ? '' : `disabled aria-disabled="true" title="${bookedLabel}" aria-label="${time}, ${bookedLabel}"`;
+            return `<button type="button" class="time-option min-h-[48px] border border-black/10 text-sm${selected ? ' selected' : ''}${available ? '' : ' is-unavailable'}" data-time="${time}" ${unavailableAttrs} aria-pressed="${selected ? 'true' : 'false'}">${time}</button>`;
+          }).join('');
         }
       }
       timeButtons = Array.from(document.querySelectorAll('#bookingTimeSlots .time-option'));
-      if (bookingState.time && !availableTimes.includes(bookingState.time)) {
+      if (bookingState.time && !availableSet.has(bookingState.time)) {
         bookingState.time = '';
         bookingState.confirmed = false;
+        document.getElementById('bookingHiddenTime').value = '';
       }
 
       const hint = document.getElementById('bookingTimeHint');
@@ -1031,16 +1055,20 @@ const menuButton = document.getElementById('menuButton');
         if (!bookingState.serviceId) hint.textContent = bookingText('booking.chooseService', 'Bitte wählen Sie zuerst eine Leistung.');
         else if (!selectedDate) hint.textContent = bookingText('booking.chooseDate', 'Bitte wählen Sie zuerst ein Datum.');
         else if (!dateAllowed) hint.textContent = bookingText('booking.errorDate', 'Bitte wählen Sie einen Öffnungstag innerhalb der nächsten 14 Tage.');
-        else if (!availableTimes.length && selectedDate === getTodayISO()) hint.textContent = bookingText('booking.todayNoTimes', 'Für heute sind keine passenden Zeiten mehr verfügbar.');
+        else if (!candidateTimes.length || (!availableTimes.length && selectedDate === getTodayISO())) hint.textContent = bookingText('booking.todayNoTimes', 'Für heute sind keine passenden Zeiten mehr verfügbar.');
         else if (!availableTimes.length) hint.textContent = bookingText('booking.noTimes', 'Keine passenden Zeiten verfügbar.');
+        else if (blockedCount > 0) hint.textContent = window.SELYS_LANG === 'en'
+          ? 'Some time slots are unavailable or already booked in this demo. Grey times cannot be selected.'
+          : 'Einige Zeitfenster sind in dieser Demo nicht verfügbar oder bereits belegt. Grau markierte Zeiten können nicht ausgewählt werden.';
         else hint.textContent = window.SELYS_LANG === 'en'
-          ? 'Times are demo availability based on the selected service and team schedule. A saved demo booking blocks overlapping slots in this browser.'
-          : 'Die Demo-Verfügbarkeit berücksichtigt Leistung, Team-Schicht und bereits gespeicherte Demo-Termine in diesem Browser.';
+          ? 'Times are demo availability based on the selected service and team schedule.'
+          : 'Die Demo-Verfügbarkeit richtet sich nach Leistung und Team-Schicht.';
       }
 
       validateStep3();
       updateBookingStepIndicators(currentBookingStep);
     }
+
 
 
     function validateStep3() {

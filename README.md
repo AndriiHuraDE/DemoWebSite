@@ -62,3 +62,10 @@ Store image files in a file/object-storage service or in the static `img/product
 For a small team editing a catalogue, Google Sheets can be the editing table and a controlled export can generate a versioned `products.json` file for the static website. The Google Sheets API supports reading ranges and batch reads. Do not expose a private spreadsheet or service credentials directly in browser code; use a controlled Apps Script/backend endpoint or publish only intentionally public catalogue data.
 
 For a multi-salon SaaS, the stronger long-term option is PostgreSQL (for example, Supabase) for product and variant records, with tenant ownership and Row Level Security; keep image files in Supabase Storage or a dedicated image CDN such as Cloudinary. Supabase documents its database as a full Postgres database with a Table Editor, while Storage keeps media objects outside the database and supports access policies. This is the recommended production direction, not an integration included in this demo.
+
+
+## Booking demo availability
+
+The calendar covers all salon working days in the next 14 days (Monday–Saturday; Sunday is closed). A small set of clearly demo-only busy slots is generated to make availability realistic; these sample holds are not shown as the visitor's own appointments and do not represent real bookings. New appointments created by the visitor are stored locally in this browser only.
+
+The Journal / ‘Inspiration & Haarpflege’ section has been removed from this demo.
